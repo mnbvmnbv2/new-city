@@ -1,0 +1,44 @@
+body {
+	background-color: black;
+	overflow: hidden;
+	justify-content: center;
+	align-content: center;
+}
+
+#overlay {
+	z-index: 9;
+	display: flex;
+	flex-wrap: wrap;
+	position: fixed;
+	width: 1500px;
+	height: 750px;
+}
+#game {
+	z-index: 6;
+	position: fixed;
+	width: 1500px;
+	height: 750px;
+}
+
+.overlayBlock {
+	opacity: 0;
+	z-index: 10;
+	width: 50px;
+	height: 50px;
+}
+
+#info {
+	background-color: rgb(65, 65, 124);
+	width: 1500px;
+	height: 150px;
+	position: fixed;
+	margin-top: 750px;
+	font-size: 20px;
+	color: white;
+	display: flex;
+	flex: wrap;
+}
+
+image {
+	margin: 0px;
+}
