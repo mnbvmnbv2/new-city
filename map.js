@@ -12,8 +12,8 @@ class NatureClass {
 }
 
 const mapWidth = 20;
-const mapHeight = 13;
-const boxSize = 75;
+const mapHeight = 10;
+const boxSize = 20;
 
 const gameEl = document.getElementById('game');
 const overlayEl = document.getElementById('overlay');
@@ -21,10 +21,15 @@ gameEl.style.width = `${boxSize * mapWidth}px`;
 gameEl.style.height = `${boxSize * mapHeight}px`;
 overlayEl.style.width = `${boxSize * mapWidth}px`;
 overlayEl.style.height = `${boxSize * mapHeight}px`;
-var overlayBlocks = document.getElementsByClassName('overlayBlock');
+let overlayBlocks = overlayEl.getElementsByClassName('overlayBlock');
+console.log(overlayBlocks);
+console.log(overlayBlocks.length);
 for (i = 0; i < overlayBlocks.length; i++) {
-	overlayBlocks[i].style.width = `${boxSize * mapWidth}px`;
-	overlayBlocks[i].style.height = `${boxSize * mapHeight}px`;
+	console.log('hei');
+	console.log(overlayBlocks[i]);
+	overlayBlocks[i].style.backgroundColor = 'blue';
+	overlayBlocks[i].style.width = `${boxSize}px`;
+	overlayBlocks[i].style.height = `${boxSize}px`;
 }
 
 const infoEl = document.getElementById('info');
@@ -121,7 +126,7 @@ function drawGame() {
 	var ctx = gameEl.getContext('2d');
 
 	x = 0;
-	y = -boxSize * 2 / 5;
+	y = -boxSize * 2 / 7;
 
 	for (var i = 0; i < map.length; i++) {
 		for (var j = 0; j < map[i].length; j++) {
