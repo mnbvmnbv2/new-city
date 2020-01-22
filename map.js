@@ -11,9 +11,9 @@ class NatureClass {
 	}
 }
 
-const mapWidth = 60;
-const mapHeight = 30;
-const boxSize = 25;
+const mapWidth = 20;
+const mapHeight = 13;
+const boxSize = 75;
 
 const gameEl = document.getElementById('game');
 const overlayEl = document.getElementById('overlay');
@@ -33,7 +33,7 @@ infoEl.style.marginTop = `${boxSize * mapHeight}px`;
 
 const tileName = [ 'desert', 'sea' ];
 const mapTypeChances = [ 2, 1 ];
-const mapTotalChance = mapTypeChances.reduce();
+// const mapTotalChance = mapTypeChances.reduce();
 
 //const tileFuncs = [desertMaker()]
 
@@ -44,12 +44,31 @@ let heightMap = [];
 createHeightMap();
 function createHeightMap() {
 	for (var i = 0; i < mapHeight; i++) {
-		let mapLine = [];
+		line = [];
 		for (var j = 0; j < mapWidth; j++) {
-			const randomNum = Math.random() * 2 - 1;
-			mapLine.push(randomNum);
+			if (i == 0 && j == 0) {
+				line.push(5);
+			} else if (j == 0) {
+				line.push(Math.floor(Math.random() * 9) + 1);
+			} else {
+				let randomHeigth = Math.floor(Math.random() * 5);
+				if (line[j - 1] + randomHeigth - 3 <= 0) {
+					line.push(1);
+				} else if (line[j - 1] + randomHeigth - 2 >= 10) {
+					line.push(9);
+				} else {
+					line.push(line[j - 1] + randomHeigth - 2);
+				}
+				if (i != 0) {
+					if (line[j] < heightMap[i - 1][j] - 4) {
+						line[j] = heightMap[i - 1][j] - 4;
+					} else if (line[j] > heightMap[i - 1][j] + 4) {
+						line[j] = heightMap[i - 1][j] + 4;
+					}
+				}
+			}
 		}
-		heightMap.push(mapLine);
+		heightMap.push(line);
 	}
 }
 
@@ -57,11 +76,11 @@ createMap();
 function createMap() {
 	let makingMapTile = 0;
 
-	for (var i = 0; i < heightMap; i++) {
+	for (var i = 0; i < heightMap.length; i++) {
 		let mapLine = [];
 		for (var j = 0; j < heightMap[i].length; j++) {
 			let mapTileType;
-			if (heightMap[i][j] < 0) {
+			if (heightMap[i][j] < 6) {
 				mapTileType = 0;
 			} else {
 				mapTileType = 1;
@@ -97,8 +116,6 @@ var y = 0;
 var tileNumber = 0;
 var tilePic;
 
-var gameWidth = 38;
-
 drawGame();
 function drawGame() {
 	var ctx = gameEl.getContext('2d');
@@ -112,12 +129,12 @@ function drawGame() {
 
 			tilePic.src = `bilder/${tileName[map[i][j]]}/0.png`;
 
-			ctx.drawImage(tilePic, x, y, boxSize, boxSize * 7 / 5);
+			ctx.drawImage(tilePic, x, y, boxSize, boxSize);
 
 			x += boxSize;
 			if (x >= mapWidth * boxSize) {
 				x = 0;
-				y += boxSize;
+				y += boxSize * 5 / 7;
 			}
 		}
 	}
