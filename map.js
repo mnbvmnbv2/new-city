@@ -11,33 +11,27 @@ class NatureClass {
 	}
 }
 
-const mapWidth = 20;
-const mapHeight = 10;
-const boxSize = 20;
+const mapWidth = 80;
+const mapHeight = 45;
+const boxSize = 12;
 
 const gameEl = document.getElementById('game');
 const overlayEl = document.getElementById('overlay');
 gameEl.style.width = `${boxSize * mapWidth}px`;
 gameEl.style.height = `${boxSize * mapHeight}px`;
+gameEl.width = `${boxSize * mapWidth}`;
+gameEl.height = `${boxSize * mapHeight}`;
+
 overlayEl.style.width = `${boxSize * mapWidth}px`;
 overlayEl.style.height = `${boxSize * mapHeight}px`;
-let overlayBlocks = overlayEl.getElementsByClassName('overlayBlock');
-console.log(overlayBlocks);
-console.log(overlayBlocks.length);
-for (i = 0; i < overlayBlocks.length; i++) {
-	console.log('hei');
-	console.log(overlayBlocks[i]);
-	overlayBlocks[i].style.backgroundColor = 'blue';
-	overlayBlocks[i].style.width = `${boxSize}px`;
-	overlayBlocks[i].style.height = `${boxSize}px`;
-}
 
 const infoEl = document.getElementById('info');
 infoEl.style.width = `${boxSize * mapWidth}px`;
 infoEl.style.marginTop = `${boxSize * mapHeight}px`;
+infoEl.style.height = `${boxSize * mapHeight/2}px`;
 
-const tileName = [ 'desert', 'sea' ];
-const mapTypeChances = [ 2, 1 ];
+const tileName = [ 'sea', 'desert' ];
+//const mapTypeChances = [ 1, 2 ];
 // const mapTotalChance = mapTypeChances.reduce();
 
 //const tileFuncs = [desertMaker()]
@@ -57,7 +51,7 @@ function createHeightMap() {
 				line.push(Math.floor(Math.random() * 9) + 1);
 			} else {
 				let randomHeigth = Math.floor(Math.random() * 5);
-				if (line[j - 1] + randomHeigth - 3 <= 0) {
+				if (line[j - 1] + randomHeigth - 4 <= 0) {
 					line.push(1);
 				} else if (line[j - 1] + randomHeigth - 2 >= 10) {
 					line.push(9);
@@ -65,10 +59,10 @@ function createHeightMap() {
 					line.push(line[j - 1] + randomHeigth - 2);
 				}
 				if (i != 0) {
-					if (line[j] < heightMap[i - 1][j] - 4) {
-						line[j] = heightMap[i - 1][j] - 4;
-					} else if (line[j] > heightMap[i - 1][j] + 4) {
-						line[j] = heightMap[i - 1][j] + 4;
+					if (line[j] < heightMap[i - 1][j] - 3) {
+						line[j] = heightMap[i - 1][j] - 3;
+					} else if (line[j] > heightMap[i - 1][j] + 3) {
+						line[j] = heightMap[i - 1][j] + 3;
 					}
 				}
 			}
@@ -85,7 +79,7 @@ function createMap() {
 		let mapLine = [];
 		for (var j = 0; j < heightMap[i].length; j++) {
 			let mapTileType;
-			if (heightMap[i][j] < 6) {
+			if (heightMap[i][j] < 4) {
 				mapTileType = 0;
 			} else {
 				mapTileType = 1;
@@ -105,10 +99,15 @@ function createMap() {
 for (var i = 0; i < mapWidth * mapHeight; i++) {
 	var clickable = document.createElement('div');
 	clickable.classList.add('overlayBlock');
-	clickable.id = i;
+	//clickable.id = i;
 	//clickable.addEventListener('click', selected);
 	clickable.style.opacity = 0.1;
 	overlayEl.appendChild(clickable);
+}
+var ho = document.getElementsByClassName('overlayBlock');
+for (var i = 0; i < ho.length; i++) {
+	ho[i].style.width = `${boxSize}px`;
+	ho[i].style.height = `${boxSize}px`;
 }
 
 var theList = document.querySelectorAll('.overlayBlock');
@@ -134,7 +133,7 @@ function drawGame() {
 
 			tilePic.src = `bilder/${tileName[map[i][j]]}/0.png`;
 
-			ctx.drawImage(tilePic, x, y, boxSize, boxSize);
+			ctx.drawImage(tilePic, x, y*7/5, boxSize, boxSize*7/5);
 
 			x += boxSize;
 			if (x >= mapWidth * boxSize) {
