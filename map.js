@@ -100,17 +100,43 @@ for (var i = 0; i < mapWidth * mapHeight; i++) {
 	var clickable = document.createElement('div');
 	clickable.classList.add('overlayBlock');
 	//clickable.id = i;
-	//clickable.addEventListener('click', selected);
+	clickable.addEventListener('click', selected);
 	clickable.style.opacity = 0.1;
 	overlayEl.appendChild(clickable);
 }
-var ho = document.getElementsByClassName('overlayBlock');
-for (var i = 0; i < ho.length; i++) {
-	ho[i].style.width = `${boxSize}px`;
-	ho[i].style.height = `${boxSize}px`;
+var overlayblocks = document.getElementsByClassName('overlayBlock');
+for (var i = 0; i < overlayblocks.length; i++) {
+	overlayblocks[i].style.width = `${boxSize}px`;
+	overlayblocks[i].style.height = `${boxSize}px`;
 }
 
-var theList = document.querySelectorAll('.overlayBlock');
+
+
+
+//--------------------MODAL-------------------------------
+
+var modal = document.getElementById("myModal");
+
+// Get the <span> element that closes the modal
+var span = document.getElementById("span1");
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
+//--------------------------------------------------------------
+
+function selected(e){
+	modal.style.display = "block";
+}
 
 //--------------------TILES-------------------------------
 
