@@ -11,9 +11,10 @@ class NatureClass {
 	}
 }
 
-const mapWidth = 80;
-const mapHeight = 45;
-const boxSize = 12;
+const boxSize = Math.floor(screen.width/50);
+const mapWidth = Math.floor(screen.width/boxSize)-5;
+console.log(mapWidth);
+const mapHeight = 20;
 
 const gameEl = document.getElementById('game');
 const overlayEl = document.getElementById('overlay');
@@ -99,7 +100,7 @@ function createMap() {
 for (var i = 0; i < mapWidth * mapHeight; i++) {
 	var clickable = document.createElement('div');
 	clickable.classList.add('overlayBlock');
-	//clickable.id = i;
+	clickable.id = i;
 	clickable.addEventListener('click', selected);
 	clickable.style.opacity = 0.1;
 	overlayEl.appendChild(clickable);
@@ -116,6 +117,8 @@ for (var i = 0; i < overlayblocks.length; i++) {
 //--------------------MODAL-------------------------------
 
 var modal = document.getElementById("myModal");
+
+const spantextEl = document.getElementById("spantext");
 
 // Get the <span> element that closes the modal
 var span = document.getElementById("span1");
@@ -135,7 +138,25 @@ window.onclick = function(event) {
 //--------------------------------------------------------------
 
 function selected(e){
-	modal.style.display = "block";
+	//modal.style.display = "block";
+	spantextEl.innerHTML = "Dette er block " + e.target.id;
+	let line = 0;
+	let pointer = 0;
+	for(var i = 0; i < Number(e.target.id); i++){
+		pointer++;
+		if(pointer > mapWidth-1){
+			line++;
+			pointer = 0;
+		}
+	}
+	if(map[line][pointer] == 0){
+		map[line][pointer] = 1;
+	} else{
+		map[line][pointer] = 0;
+	}
+	console.log(line);
+	console.log(pointer);
+	console.log(e.target.id)
 }
 
 //--------------------TILES-------------------------------
