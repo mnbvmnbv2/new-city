@@ -36,3 +36,6 @@
     text-decoration: none;
     cursor: pointer;
   }
+  #close:hover{
+    cursor: pointer;
+  }

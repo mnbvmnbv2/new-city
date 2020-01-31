@@ -1,6 +1,7 @@
 body {
 	overflow: hidden;
 	background-color: black;
+	font-family: sans-serif;
 }
 
 #overlay {
@@ -15,9 +16,11 @@ body {
 }
 
 .overlayBlock {
-	opacity: 0.4;
+	color: black;
+	font-size: 21px;
+	text-align: center;
+	justify-content: center;
 	z-index: 10;
-	background-color: blue;
 }
 
 #info {
