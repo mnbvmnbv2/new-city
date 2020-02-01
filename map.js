@@ -1,34 +1,67 @@
 //-------------------MAP-OG-OVERLAY------------------------
 class TileClass {
-	constructor(tileNumber, heigth) {
+	constructor(tileNumber, heigth, y, x) {
 		this.tileNumber = tileNumber;
+		this.height = heigth;
+		this.y = y;
+		this.x = x;
 
-		if (heigth > maxHeigth){
+		this.fixHeigth();
+	}
+	fixHeigth(){
+		//console.log(this.heigth)
+		if(this.height > maxHeigth){
 			this.height = maxHeigth;
-		} else if(heigth < minHeigth){
+		} else if(this.height < minHeigth){
 			this.height = minHeigth;
-		} else{
-			this.height = heigth;
 		}
-		
-		if(this.height <= 0){
+
+		if(this.y > 0) {
+			//compares to line over
+			if (this.height < (map[this.y - 1][this.x].height - heigthToOver)) {
+				this.height = map[this.y - 1][this.x].height - heigthToOver;
+			} else if (this.height > (map[this.y - 1][this.x].height + heigthToOver)) {
+				this.height = map[this.y - 1][this.x].height + heigthToOver;
+			}
+		}
+
+		overlayblocks[this.tileNumber].innerHTML = this.height;
+		if(this.height >= 0){
 			this.type = 'desert';
 		} else{
 			this.type = 'sea';
 		}
-		
-		this.food = 2;
-		this.wood = 2;
-		this.stone = 2;
-		this.value = 2;
-		this.name = "generic";
+	}
+	changeHeigth(){
+		if(Math.random() < 0.5){
+			if(Math.random() < 0.5){
+				this.height++;
+			} else{
+				this.height--;
+			}
+		}
+		this.fixHeigth();
 	}
 }
 
+//----keybinds
+
+document.addEventListener('keydown', myFunction);
+
+function myFunction(e){
+	if(e.code == "KeyA"){
+		for(let i = 0; i < mapWidth*mapHeight-1;i++){
+			findTile(i).changeHeigth();
+		}
+		console.log(e.code);
+	}
+}
+
+
 //---------MAPSIZE---------------
-const boxSize = Math.floor(screen.width/50);
-const mapWidth = Math.floor(screen.width/boxSize)-5;
-const mapHeight = 20;
+const boxSize = 25;
+const mapWidth = 56;
+const mapHeight = 25;
 //-------------------------------
 
 const gameEl = document.getElementById('game');
@@ -44,15 +77,37 @@ overlayEl.style.height = `${boxSize * mapHeight}px`;
 const infoEl = document.getElementById('info');
 infoEl.style.width = `${boxSize * mapWidth}px`;
 infoEl.style.marginTop = `${boxSize * mapHeight}px`;
-infoEl.style.height = `${boxSize * mapHeight/2}px`;
+infoEl.style.height = `100px`;
+
+
+//--------------OVERLAY BLOCKS_-------------
+
+for (var i = 0; i < mapWidth * mapHeight; i++) {
+	var clickable = document.createElement('div');
+	clickable.classList.add('overlayBlock');
+	clickable.id = i;
+	clickable.addEventListener('click', selected);
+	overlayEl.appendChild(clickable);
+}
+var overlayblocks = document.getElementsByClassName('overlayBlock');
+for (var i = 0; i < overlayblocks.length; i++) {
+	overlayblocks[i].style.width = `${boxSize}px`;
+	overlayblocks[i].style.height = `${boxSize}px`;
+}
+
+
 
 //--------------MAPMAKER------------------------
 
-const maxHeigth = 8;
-const minHeigth = -8;
+function randInt(min, max){
+	return Math.floor(Math.random() * (max - min + 1) ) + min;
+}
+
+const maxHeigth = 20;
+const minHeigth = -20;
 const heightRange = maxHeigth-minHeigth;
-const newHeigthRange = 8; // 8 = (-4)-4
-const heigthToOver = 4;
+const newHeigthRange = 12; // 10 => (-5) - 5
+const heigthToOver = 7;
 
 //const mapTypeChances = [ 1, 2 ];
 // const mapTotalChance = mapTypeChances.reduce();
@@ -65,49 +120,19 @@ function createMap() {
 	for (var i = 0; i < mapHeight; i++) { //i per line
 		line = [];
 		for (var j = 0; j < mapWidth; j++) {
-			if (i == 0 && j == 0) { 
-				//first tile
-				let o = new TileClass(tileCounter,0); // first tile with heigth 0
-				line.push(o);
-			} else if (j == 0) {
+			if (j == 0) {
 				//first tile on new line
-				let o = new TileClass(tileCounter,Math.floor(Math.random() * 4) - 2); //random heigth (-2)-1
+				let o = new TileClass(tileCounter,randInt(-newHeigthRange/2,newHeigthRange/2),i,j); 
 				line.push(o);
 			} else {
-				let o = new TileClass(tileCounter,line[j-1].height + Math.floor(Math.random() * newHeigthRange*+1)-newHeigthRange/2); // (-4)-4 range
+				let o = new TileClass(tileCounter,line[j-1].height + randInt(-newHeigthRange/2,newHeigthRange/2),i,j); // (-4)-4 range
 				line.push(o)
-				}
-			if (i != 0) {
-				//compares to line over
-				if (line[j].height < map[i - 1][j].height - heigthToOver) {
-					line[j].height = map[i - 1][j].height - heigthToOver;
-				} else if (line[j] > map[i - 1][j] + heigthToOver) {
-					line[j] = map[i - 1][j] + heigthToOver;
-				}
 			}
 			tileCounter++;
 		}
 		map.push(line);
 	}
 }
-
-
-for (var i = 0; i < mapWidth * mapHeight; i++) {
-	var clickable = document.createElement('div');
-	clickable.classList.add('overlayBlock');
-	clickable.id = i;
-	clickable.addEventListener('click', selected);
-	//clickable.style.opacity = 0.1;
-	overlayEl.appendChild(clickable);
-}
-var overlayblocks = document.getElementsByClassName('overlayBlock');
-for (var i = 0; i < overlayblocks.length; i++) {
-	overlayblocks[i].style.width = `${boxSize}px`;
-	overlayblocks[i].style.height = `${boxSize}px`;
-}
-
-
-
 
 //--------------------MODAL-------------------------------
 
@@ -141,7 +166,7 @@ function findTile(tile){
 function selected(e){
 	modal.style.display = "block";
 	console.log(findTile(e.target.id))
-	spantextEl.innerHTML = `Dette er block ${e.target.id}<br>Denne har: ${findTile(e.target.id).value} verdi`;
+	spantextEl.innerHTML = `Dette er block ${e.target.id}<br>Denne har: ${findTile(e.target.id).height} hoyde`;
 
 	let pointer = 0;
 	for(var i = 0; i < Number(e.target.id); i++){
@@ -151,8 +176,6 @@ function selected(e){
 			pointer = 0;
 		}
 	}
-
-	e.target.innerHTML = '1';
 
 	/*if(map[line][pointer] == 0){
 		map[line][pointer] = 1;
@@ -191,5 +214,6 @@ function drawGame() {
 			}
 		}
 	}
+	//setTimeout(drawGame, 1000);
 	requestAnimationFrame(drawGame);
 }

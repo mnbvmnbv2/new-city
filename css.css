@@ -17,10 +17,15 @@ body {
 
 .overlayBlock {
 	color: black;
-	font-size: 21px;
+	font-size: 10px;
 	text-align: center;
 	justify-content: center;
 	z-index: 10;
+	cursor: pointer;
+}
+.overlayBlock:hover{
+	opacity: 0.5;
+	background-color: blue;
 }
 
 #info {
