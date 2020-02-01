@@ -25,7 +25,6 @@ class TileClass {
 			}
 		}
 
-		overlayblocks[this.tileNumber].innerHTML = this.height;
 		if(this.height >= 0){
 			this.type = 'desert';
 		} else{
@@ -42,7 +41,47 @@ class TileClass {
 		}
 		this.fixHeigth();
 	}
+	getRegion(){
+		if(this.region == undefined){
+			if(this.height < 0){
+				this.region = 0;
+			} else if(this.height >= 0){
+				regions++;
+				this.region = regions;
+
+				if(this.y > 0){
+					//over
+					if(map[this.y-1][this.x].height >= 0){
+						map[this.y-1][this.x].region = regions;
+					}
+				}
+				if(this.x > 0){
+					//left
+					if(map[this.y][this.x-1].height >= 0){
+						map[this.y][this.x-1].region = regions;
+					}
+				}
+				if(this.x < mapWidth-1){
+					//right
+					if(map[this.y][this.x+1].height >= 0){
+						console.log("right")
+						map[this.y][this.x+1].region = regions;
+					}
+				}
+				if(this.y < mapHeight-1){
+					//under
+					if(map[this.y+1][this.x].height >= 0){
+						console.log("under")
+						map[this.y+1][this.x].region = regions;
+					}
+				}
+			}
+			overlayblocks[this.tileNumber].innerHTML = this.region;
+		}
+	}
 }
+
+let regions = 0;
 
 //----keybinds
 
@@ -50,7 +89,7 @@ document.addEventListener('keydown', myFunction);
 
 function myFunction(e){
 	if(e.code == "KeyA"){
-		for(let i = 0; i < mapWidth*mapHeight-1;i++){
+		for(let i = 0; i < mapWidth*mapHeight;i++){
 			findTile(i).changeHeigth();
 		}
 		console.log(e.code);
@@ -132,6 +171,14 @@ function createMap() {
 		}
 		map.push(line);
 	}
+}
+
+createRegions();
+function createRegions(){
+	/*for(let i = 0; i < mapHeight*mapWidth;i++){
+		findTile(i).getRegion();
+	}*/
+	map[0][0].getRegion();
 }
 
 //--------------------MODAL-------------------------------
