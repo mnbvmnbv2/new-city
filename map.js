@@ -26,7 +26,7 @@ class TileClass {
 		}
 
 		overlayblocks[this.tileNumber].innerHTML = this.height;
-		if ((this.height = 0)) {
+		if (this.height == 0) {
 			this.type = 'grass';
 		} else if (this.height >= 1) {
 			this.type = 'desert';
