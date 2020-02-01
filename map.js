@@ -8,35 +8,37 @@ class TileClass {
 
 		this.fixHeigth();
 	}
-	fixHeigth(){
+	fixHeigth() {
 		//console.log(this.heigth)
-		if(this.height > maxHeigth){
+		if (this.height > maxHeigth) {
 			this.height = maxHeigth;
-		} else if(this.height < minHeigth){
+		} else if (this.height < minHeigth) {
 			this.height = minHeigth;
 		}
 
-		if(this.y > 0) {
+		if (this.y > 0) {
 			//compares to line over
-			if (this.height < (map[this.y - 1][this.x].height - heigthToOver)) {
+			if (this.height < map[this.y - 1][this.x].height - heigthToOver) {
 				this.height = map[this.y - 1][this.x].height - heigthToOver;
-			} else if (this.height > (map[this.y - 1][this.x].height + heigthToOver)) {
+			} else if (this.height > map[this.y - 1][this.x].height + heigthToOver) {
 				this.height = map[this.y - 1][this.x].height + heigthToOver;
 			}
 		}
 
 		overlayblocks[this.tileNumber].innerHTML = this.height;
-		if(this.height >= 0){
+		if ((this.height = 0)) {
+			this.type = 'grass';
+		} else if (this.height >= 1) {
 			this.type = 'desert';
-		} else{
+		} else {
 			this.type = 'sea';
 		}
 	}
-	changeHeigth(){
-		if(Math.random() < 0.5){
-			if(Math.random() < 0.5){
+	changeHeigth() {
+		if (Math.random() < 0.5) {
+			if (Math.random() < 0.5) {
 				this.height++;
-			} else{
+			} else {
 				this.height--;
 			}
 		}
@@ -48,15 +50,14 @@ class TileClass {
 
 document.addEventListener('keydown', myFunction);
 
-function myFunction(e){
-	if(e.code == "KeyA"){
-		for(let i = 0; i < mapWidth*mapHeight-1;i++){
+function myFunction(e) {
+	if (e.code == 'KeyA') {
+		for (let i = 0; i < mapWidth * mapHeight - 1; i++) {
 			findTile(i).changeHeigth();
 		}
 		console.log(e.code);
 	}
 }
-
 
 //---------MAPSIZE---------------
 const boxSize = 25;
@@ -79,7 +80,6 @@ infoEl.style.width = `${boxSize * mapWidth}px`;
 infoEl.style.marginTop = `${boxSize * mapHeight}px`;
 infoEl.style.height = `100px`;
 
-
 //--------------OVERLAY BLOCKS_-------------
 
 for (var i = 0; i < mapWidth * mapHeight; i++) {
@@ -95,17 +95,15 @@ for (var i = 0; i < overlayblocks.length; i++) {
 	overlayblocks[i].style.height = `${boxSize}px`;
 }
 
-
-
 //--------------MAPMAKER------------------------
 
-function randInt(min, max){
-	return Math.floor(Math.random() * (max - min + 1) ) + min;
+function randInt(min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 const maxHeigth = 20;
 const minHeigth = -20;
-const heightRange = maxHeigth-minHeigth;
+const heightRange = maxHeigth - minHeigth;
 const newHeigthRange = 12; // 10 => (-5) - 5
 const heigthToOver = 7;
 
@@ -116,17 +114,23 @@ let map = [];
 
 createMap();
 function createMap() {
-	let tileCounter = 0; 
-	for (var i = 0; i < mapHeight; i++) { //i per line
+	let tileCounter = 0;
+	for (var i = 0; i < mapHeight; i++) {
+		//i per line
 		line = [];
 		for (var j = 0; j < mapWidth; j++) {
 			if (j == 0) {
 				//first tile on new line
-				let o = new TileClass(tileCounter,randInt(-newHeigthRange/2,newHeigthRange/2),i,j); 
+				let o = new TileClass(tileCounter, randInt(-newHeigthRange / 2, newHeigthRange / 2), i, j);
 				line.push(o);
 			} else {
-				let o = new TileClass(tileCounter,line[j-1].height + randInt(-newHeigthRange/2,newHeigthRange/2),i,j); // (-4)-4 range
-				line.push(o)
+				let o = new TileClass(
+					tileCounter,
+					line[j - 1].height + randInt(-newHeigthRange / 2, newHeigthRange / 2),
+					i,
+					j
+				); // (-4)-4 range
+				line.push(o);
 			}
 			tileCounter++;
 		}
@@ -136,42 +140,42 @@ function createMap() {
 
 //--------------------MODAL-------------------------------
 
-var modal = document.getElementById("myModal");
+var modal = document.getElementById('myModal');
 
-const spantextEl = document.getElementById("spantext");
+const spantextEl = document.getElementById('spantext');
 
 // Get the <span> element that closes the modal
-var closeBtnEl = document.getElementById("close");
+var closeBtnEl = document.getElementById('close');
 
 // When the user clicks on <span> (x), close the modal
 closeBtnEl.onclick = function() {
-  modal.style.display = "none";
-}
+	modal.style.display = 'none';
+};
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-}
+	if (event.target == modal) {
+		modal.style.display = 'none';
+	}
+};
 
 //--------------------------------------------------------------
 
-function findTile(tile){
-	let i = Math.floor(tile/mapWidth);
-	let j = tile - (mapWidth*i)
+function findTile(tile) {
+	let i = Math.floor(tile / mapWidth);
+	let j = tile - mapWidth * i;
 	return map[i][j];
 }
 
-function selected(e){
-	modal.style.display = "block";
-	console.log(findTile(e.target.id))
+function selected(e) {
+	modal.style.display = 'block';
+	console.log(findTile(e.target.id));
 	spantextEl.innerHTML = `Dette er block ${e.target.id}<br>Denne har: ${findTile(e.target.id).height} hoyde`;
 
 	let pointer = 0;
-	for(var i = 0; i < Number(e.target.id); i++){
+	for (var i = 0; i < Number(e.target.id); i++) {
 		pointer++;
-		if(pointer > mapWidth-1){
+		if (pointer > mapWidth - 1) {
 			line++;
 			pointer = 0;
 		}
@@ -205,7 +209,7 @@ function drawGame() {
 
 			tilePic.src = `bilder/${map[i][j].type}/0.png`;
 
-			ctx.drawImage(tilePic, x, y*7/5, boxSize, boxSize*7/5);
+			ctx.drawImage(tilePic, x, y * 7 / 5, boxSize, boxSize * 7 / 5);
 
 			x += boxSize;
 			if (x >= mapWidth * boxSize) {
