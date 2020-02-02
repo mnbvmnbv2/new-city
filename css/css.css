@@ -17,7 +17,7 @@ body {
 
 .overlayBlock {
 	color: black;
-	font-size: 10px;
+	font-size: 9px;
 	text-align: center;
 	justify-content: center;
 	z-index: 10;
@@ -25,8 +25,7 @@ body {
 	background-color: rgba(0,0,0,0);
 }
 .overlayBlock:hover {
-	opacity: 0.5 !important;
-	background-color: blue !important;
+	background-color: rgba(0,0,255,0.5) !important;
 }
 
 #info {

@@ -8,6 +8,7 @@ class TileClass {
 
 		this.fixHeight();
 		this.setClimate();
+		this.setWeather();
 	}
 	fixHeight() {
 		if (this.height > maxHeight) {
@@ -75,7 +76,19 @@ class TileClass {
 		if(this.height >= 0){
 			this.climate = Math.floor(this.y - (this.height * heigthClimateValue) + topClimate) + randInt(-climateVariation, climateVariation);
 		} else{
-			this.climate = Math.floor(this.y + topClimate) + randInt(-climateVariation, climateVariation);
+			this.climate = Math.floor(this.y + topClimate) + seaClimate + randInt(-climateVariation, climateVariation);
+		}
+	}
+	setWeather(){
+		let weatherChance = Math.random()*totalWeatherChance;
+		let toNow = 0;
+		for(let name in Weather){
+			if(weatherChance < Weather[name] + toNow){
+				this.weather = name;
+				break;
+			} else{
+				toNow += Weather[name];
+			}
 		}
 	}
 	checkRegionTo(tile){
@@ -133,34 +146,53 @@ function shuffle(a) {
 
 //------------------MAPMODES----COLORS-----------------
 
-const randomRegionColors = Math.floor(Math.random()*20)+1;
+let activeMode = 'none';
 
-function hashColor(number){
-	let possibles = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
-	let color = '#';
-	let offset = randomRegionColors;
-	for(var i =0;i<6;i++){
-		color += possibles[(number+offset*i+(number*offset)%11*i)%possibles.length];
+function mapMode(mode){
+	for(var i = 0; i < mapHeight*mapWidth; i++){
+		overlayblocks[i].innerHTML = findTile(i)[mode];
+		overlayblocks[i].style.backgroundColor = colorModes[mode](findTile(i)[mode]);
 	}
-	if(number == 0){
-		return 'rgba(0,0,0,0)';
-	}
-	return color;
+	activeMode = mode;
 }
 
-function heightMap(height){
-	if(height >= 0){
-		return `rgba(90,60,20,${height/maxHeight})`
-	}else{
-		return `rgba(45,20,90,${height/minHeight})`
-	}
-}
+const randomRegionColors = Math.floor(Math.random()*20)+3;
 
-function climateColor(climate){
-	if(climate < 0){
-		return `rgba(0,0,150,${climate/minClimate})`
-	} else{
-		return `rgba(200,0,0,${climate/maxClimate})`
+let colorModes = {
+	none: function(){
+		for(var i = 0; i < mapHeight*mapWidth; i++){
+			overlayblocks[i].innerHTML = '';
+			overlayblocks[i].style.backgroundColor = 'rgba(0,0,0,0)';
+		}
+	},
+	height: function(height){
+		if(height >= 0){
+			return `rgba(90,60,20,${height/maxHeight})`
+		}else{
+			return `rgba(45,20,90,${height/minHeight})`
+		}
+	},
+	region: function(region){
+		let possibles = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
+		let color = '#';
+		let offset = randomRegionColors;
+		for(var i=0;i<6;i++){
+			color += possibles[(region+offset*i+(region*offset)%11*i)%possibles.length]; //hashing?
+		}
+		if(region == 0){
+			return 'rgba(0,0,0,0)';
+		}
+		return color;
+	},
+	climate: function(climate){
+		if(climate < 0){
+			return `rgba(0,0,150,${climate/minClimate})`
+		} else{
+			return `rgba(200,0,0,${climate/maxClimate})`
+		}
+	},
+	weather: function(weather){
+		return `hsla(${Object.keys(Weather).indexOf(weather)*82},85%,50%,0.2)`;
 	}
 }
 
@@ -176,27 +208,17 @@ function keyClick(e){
 	} else if(e.code == 'KeyQ'){
 		for(var i = 0; i < mapHeight*mapWidth; i++){
 			overlayblocks[i].innerHTML = '';
-			overlayblocks[i].style.backgroundColor = 'blue';
-			overlayblocks[i].style.opacity = '0';
+			overlayblocks[i].style.backgroundColor = 'rgba(0,0,0,0)';
 		}
+		activeMode = 'none';
 	} else if(e.code == 'KeyW'){
-		for(var i = 0; i < mapHeight*mapWidth; i++){
-			overlayblocks[i].innerHTML = findTile(i).height;
-			overlayblocks[i].style.backgroundColor = heightMap(findTile(i).height);
-			overlayblocks[i].style.opacity = '1';
-		}
+		mapMode('height');
 	} else if(e.code == 'KeyE'){
-		for(var i = 0; i < mapHeight*mapWidth; i++){
-			overlayblocks[i].innerHTML = findTile(i).region;
-			overlayblocks[i].style.backgroundColor = hashColor(findTile(i).region);
-			overlayblocks[i].style.opacity = '1';
-		}
+		mapMode('region');
 	} else if(e.code == 'KeyR'){
-		for(var i = 0; i < mapHeight*mapWidth; i++){
-			overlayblocks[i].innerHTML = findTile(i).climate;
-			overlayblocks[i].style.backgroundColor = climateColor(findTile(i).climate);
-			overlayblocks[i].style.opacity = '1';
-		}
+		mapMode('climate');
+	} else if(e.code == 'KeyT'){
+		mapMode('weather');
 	}
 }
 
@@ -256,6 +278,16 @@ const topClimate = -10;
 const heigthClimateValue = 1/3;
 const minClimate = topClimate - Math.floor(maxHeight*heigthClimateValue) - climateVariation;
 const maxClimate = mapHeight + topClimate + climateVariation;
+const seaClimate = -2;
+
+//-------------WEATHER-------------------
+
+//key: name, value: chance
+const Weather = {fair: 10, sunny: 5, cloudy: 5, windy: 3, storm: 1, hurric: 0.5};
+let totalWeatherChance = 0;
+for(let name in Weather){
+	totalWeatherChance += Weather[name];
+}
 
 //const mapTypeChances = [ 1, 2 ];
 // const mapTotalChance = mapTypeChances.reduce();
