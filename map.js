@@ -9,7 +9,6 @@ class TileClass {
 		this.fixHeight();
 	}
 	fixHeight() {
-		//console.log(this.height)
 		if (this.height > maxHeight) {
 			this.height = maxHeight;
 		} else if (this.height < minHeight) {
@@ -43,22 +42,43 @@ class TileClass {
 		}
 		this.fixHeight();
 	}
-	checkRegionTo(y,x){
+	north(){
 		try{
-			if(map[y][x].region != 0 && map[y][x].region != undefined){ //if tile has region
-				if(Math.random() < regionJoinChance + (0.4 - (regions[map[y][x].region-1].length / 10))){ //chance for this to join its region
-					this.region = map[y][x].region; //this gets its region
-					regions[map[y][x].region-1].push(this); //join the region array
+			return map[this.y-1][this.x];
+		}catch{
+			return false;
+		}
+	}
+	west(){
+		try{
+			return map[this.y][this.x-1];
+		}catch{
+			return false;
+		}
+	}
+	east(){
+		try{
+			return map[this.y][this.x+1];
+		}catch{
+			return false;
+		}
+	}
+	south(){
+		try{
+			return map[this.y+1][this.x];
+		}catch{
+			return false;
+		}
+	}
+	checkRegionTo(tile){
+		try{
+			if(tile.region != 0 && tile.region != undefined){ //if tile has region
+				if(Math.random() < regionJoinChance + (regionJoinMinimum - (regions[tile.region-1].length / 10))){ //chance for this to join its region
+					this.region = tile.region; //this gets its region
+					regions[tile.region-1].push(this); //join the region array
 				}
 			}
 		} catch(err){}
-	}
-	sendRegionCheck(y,x){
-		try{
-			if(map[y][x].region == undefined){
-				map[y][x].getRegion();
-			}
-		}catch(err){}
 	}
 	getRegion(){
 		if(this.height < 0){
@@ -66,11 +86,10 @@ class TileClass {
 		}
 		if(this.region == undefined){
 			if(this.height >= 0){
-				
 				//tests if the tiles around has a region in a random order
-				let aroundTiles= [[this.y-1,this.x],[this.y,this.x-1],[this.y,this.x+1],[this.y+1,this.x]];
+				let aroundTiles= [this.north(),this.west(),this.east(),this.south()];
 				shuffle(aroundTiles);
-				aroundTiles.forEach(element => this.checkRegionTo(element[0],element[1]));
+				aroundTiles.forEach(element => this.checkRegionTo(element));
 
 				//if this tile did not get a region, then it creates a new one
 				if(this.region == undefined){
@@ -81,7 +100,7 @@ class TileClass {
 				}
 
 				//makes the tiles around do the regionCheck
-				aroundTiles.forEach(element => this.sendRegionCheck(element[0],element[1]));
+				//aroundTiles.forEach(element => function(){if(element != false){element.getRegion()}});
 			}
 		}
 	}
@@ -90,6 +109,7 @@ class TileClass {
 let numberOfRegions = 0;
 let regions = [];
 const regionJoinChance = 0.92;
+const regionJoinMinimum = 0.44;
 
 //fisher-yates shuffle
 function shuffle(a) {
