@@ -23,7 +23,7 @@ body {
 	z-index: 10;
 	cursor: pointer;
 }
-.overlayBlock:hover{
+.overlayBlock:hover {
 	opacity: 0.5;
 	background-color: blue;
 }
