@@ -7,6 +7,7 @@ class TileClass {
 		this.x = x;
 
 		this.fixHeight();
+		this.setClimate();
 	}
 	fixHeight() {
 		if (this.height > maxHeight) {
@@ -70,6 +71,13 @@ class TileClass {
 			return false;
 		}
 	}
+	setClimate(){
+		if(this.height >= 0){
+			this.climate = Math.floor(this.y - (this.height * heigthClimateValue) + topClimate) + randInt(-climateVariation, climateVariation);
+		} else{
+			this.climate = Math.floor(this.y + topClimate) + randInt(-climateVariation, climateVariation);
+		}
+	}
 	checkRegionTo(tile){
 		try{
 			if(tile.region != 0 && tile.region != undefined){ //if tile has region
@@ -80,7 +88,7 @@ class TileClass {
 			}
 		} catch(err){}
 	}
-	getRegion(){
+	setRegion(){
 		if(this.height < 0){
 			this.region = 0;
 		}
@@ -100,7 +108,7 @@ class TileClass {
 				}
 
 				//makes the tiles around do the regionCheck
-				//aroundTiles.forEach(element => function(){if(element != false){element.getRegion()}});
+				//aroundTiles.forEach(element => function(){if(element != false){element.setRegion()}});
 			}
 		}
 	}
@@ -123,10 +131,14 @@ function shuffle(a) {
     return a;
 }
 
+//------------------MAPMODES----COLORS-----------------
+
+const randomRegionColors = Math.floor(Math.random()*20)+1;
+
 function hashColor(number){
 	let possibles = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
 	let color = '#';
-	let offset = 5;
+	let offset = randomRegionColors;
 	for(var i =0;i<6;i++){
 		color += possibles[(number+offset*i+(number*offset)%11*i)%possibles.length];
 	}
@@ -141,6 +153,14 @@ function heightMap(height){
 		return `rgba(90,60,20,${height/maxHeight})`
 	}else{
 		return `rgba(45,20,90,${height/minHeight})`
+	}
+}
+
+function climateColor(climate){
+	if(climate < 0){
+		return `rgba(0,0,150,${climate/minClimate})`
+	} else{
+		return `rgba(200,0,0,${climate/maxClimate})`
 	}
 }
 
@@ -169,6 +189,12 @@ function keyClick(e){
 		for(var i = 0; i < mapHeight*mapWidth; i++){
 			overlayblocks[i].innerHTML = findTile(i).region;
 			overlayblocks[i].style.backgroundColor = hashColor(findTile(i).region);
+			overlayblocks[i].style.opacity = '1';
+		}
+	} else if(e.code == 'KeyR'){
+		for(var i = 0; i < mapHeight*mapWidth; i++){
+			overlayblocks[i].innerHTML = findTile(i).climate;
+			overlayblocks[i].style.backgroundColor = climateColor(findTile(i).climate);
 			overlayblocks[i].style.opacity = '1';
 		}
 	}
@@ -222,6 +248,15 @@ const heightRange = maxHeight - minHeight;
 const newHeightRange = 12; // 10 => (-5) - 5
 const heightToOver = 7;
 
+//-------------CLIMATECONFIG------------
+
+
+const climateVariation = 2;
+const topClimate = -10;
+const heigthClimateValue = 1/3;
+const minClimate = topClimate - Math.floor(maxHeight*heigthClimateValue) - climateVariation;
+const maxClimate = mapHeight + topClimate + climateVariation;
+
 //const mapTypeChances = [ 1, 2 ];
 // const mapTotalChance = mapTypeChances.reduce();
 
@@ -251,7 +286,7 @@ function createMap() {
 createRegions();
 function createRegions(){
 	for(let i = 0; i < mapHeight*mapWidth;i++){
-		findTile(i).getRegion();
+		findTile(i).setRegion();
 	}
 }
 
@@ -298,7 +333,7 @@ function selected(e) {
 		}
 	}
 
-	findTile(e.target.id).getRegion();
+	findTile(e.target.id).setRegion();
 
 	/*if(map[line][pointer] == 0){
 		map[line][pointer] = 1;
