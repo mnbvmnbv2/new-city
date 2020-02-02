@@ -9,6 +9,7 @@ class TileClass {
 		this.fixHeight();
 		this.setClimate();
 		this.setWeather();
+		this.setTemperature();
 	}
 	fixHeight() {
 		if (this.height > maxHeight) {
@@ -26,7 +27,7 @@ class TileClass {
 			}
 		}
 
-		if(this.height == 0) {
+		if(this.height == 0 || this.height == 1) {
 			this.type = 'grass';
 		} else if ( this.height >= 0) {
 			this.type = 'desert';
@@ -91,6 +92,17 @@ class TileClass {
 			}
 		}
 	}
+	setTemperature(){
+		this.temperature = this.climate + randInt(-temperatureChange,temperatureChange);
+	}
+	changeTemperature(){
+		this.temperature += randInt(-1,1);
+		if(this.temperature > this.climate + temperatureChange){
+			this.temperature = this.climate + temperatureChange;
+		} else if(this.temperature < this.climate - temperatureChange){
+			this.temperature = this.climate - temperatureChange;
+		}
+	}
 	checkRegionTo(tile){
 		try{
 			if(tile.region != 0 && tile.region != undefined){ //if tile has region
@@ -102,28 +114,30 @@ class TileClass {
 		} catch(err){}
 	}
 	setRegion(){
-		if(this.height < 0){
-			this.region = 0;
-		}
-		if(this.region == undefined){
-			if(this.height >= 0){
-				//tests if the tiles around has a region in a random order
-				let aroundTiles= [this.north(),this.west(),this.east(),this.south()];
-				shuffle(aroundTiles);
-				aroundTiles.forEach(element => this.checkRegionTo(element));
-
-				//if this tile did not get a region, then it creates a new one
-				if(this.region == undefined){
-					numberOfRegions++;
-					regions.push([]);
-					this.region = numberOfRegions;
-					regions[map[this.y][this.x].region-1].push(this); //join the region array
-				}
-
-				//makes the tiles around do the regionCheck
-				//aroundTiles.forEach(element => function(){if(element != false){element.setRegion()}});
+		try{
+			if(this.height < 0){
+				this.region = 0;
 			}
-		}
+			if(this.region == undefined){
+				if(this.height >= 0){
+					//tests if the tiles around has a region in a random order
+					let aroundTiles= [this.north(),this.west(),this.east(),this.south()];
+					shuffle(aroundTiles);
+					aroundTiles.forEach(element => this.checkRegionTo(element));
+
+					//if this tile did not get a region, then it creates a new one
+					if(this.region == undefined){
+						numberOfRegions++;
+						regions.push([]);
+						this.region = numberOfRegions;
+						regions[map[this.y][this.x].region-1].push(this); //join the region array
+					}
+
+					//makes the tiles around do the regionCheck
+					aroundTiles.forEach(element => element.setRegion());
+				}
+			}
+		}catch{}
 	}
 }
 
@@ -156,7 +170,7 @@ function mapMode(mode){
 	activeMode = mode;
 }
 
-const randomRegionColors = Math.floor(Math.random()*20)+3;
+const randomRegionColors = Math.floor(Math.random()*9)+2;
 
 let colorModes = {
 	none: function(){
@@ -191,6 +205,13 @@ let colorModes = {
 			return `rgba(200,0,0,${climate/maxClimate})`
 		}
 	},
+	temperature: function(temperature){
+		if(temperature < 0){
+			return `rgba(0,0,150,${temperature/minTemperature})`
+		} else{
+			return `rgba(200,0,0,${temperature/maxTemperature})`
+		}
+	},
 	weather: function(weather){
 		return `hsla(${Object.keys(Weather).indexOf(weather)*82},85%,50%,0.2)`;
 	}
@@ -218,14 +239,16 @@ function keyClick(e){
 	} else if(e.code == 'KeyR'){
 		mapMode('climate');
 	} else if(e.code == 'KeyT'){
+		mapMode('temperature');
+	} else if(e.code == 'KeyY'){
 		mapMode('weather');
 	}
 }
 
 //---------MAPSIZE---------------
-const boxSize = 25;
-const mapWidth = 56;
-const mapHeight = 25;
+const boxSize = 20;
+const mapWidth = 70;
+const mapHeight = 30;
 //-------------------------------
 
 const gameEl = document.getElementById('game');
@@ -288,6 +311,12 @@ let totalWeatherChance = 0;
 for(let name in Weather){
 	totalWeatherChance += Weather[name];
 }
+
+//------------TEMPERATURE----------------
+
+const temperatureChange = 3;
+const minTemperature = minClimate - temperatureChange;
+const maxTemperature = maxClimate + temperatureChange;
 
 //const mapTypeChances = [ 1, 2 ];
 // const mapTotalChance = mapTypeChances.reduce();
