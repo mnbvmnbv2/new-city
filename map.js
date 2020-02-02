@@ -43,67 +43,99 @@ class TileClass {
 		}
 		this.fixHeigth();
 	}
+	checkRegionTo(y,x){
+		try{
+			if(map[y][x].region != 0 && map[y][x].region != undefined){ //if tile has region
+				if(Math.random() < regionJoinChance + (0.4 - (regions[map[y][x].region-1].length / 10))){ //chance for this to join its region
+					this.region = map[y][x].region; //this gets its region
+					regions[map[y][x].region-1].push(this); //join the region array
+				}
+			}
+		} catch(err){
+			console.log('dgb');
+		}
+	}
 	getRegion(){
+		if(this.height < 0){
+			this.region = 0;
+		}
 		if(this.region == undefined){
-			if(this.height < 0){
-				this.region = 0;
-			} else if(this.height >= 0){
-
-				if(map[this.y-1][this.x].region != 0 && map[this.y-1][this.x].region != undefined){//over
-					this.region = map[this.y-1][this.x].region;
-
-				} else if (map[this.y][this.x-1].region != 0 && map[this.y][this.x-1].region != undefined){ //left
-					this.region = map[this.y][this.x-1].region;
-
-				} else if (map[this.y][this.x+1].region != 0 && map[this.y][this.x+1].region != undefined){ //right
-					this.region = map[this.y][this.x+1].region;
-
-				} else if (map[this.y+1][this.x].region != 0 && map[this.y+1][this.x].region != undefined){ //under
-					this.region = map[this.y][this.x].region;
+			if(this.height >= 0){
 				
-				} 
-				if(this.region != 0 && this.region != undefined){
-					regions++;
-					this.region = regions;
+				let aroundTests= [[this.y-1,this.x],[this.y,this.x-1],[this.y,this.x+1],[this.y+1,this.x]];
+				shuffle(aroundTests);
+				aroundTests.forEach(element => this.checkRegionTo(element[0],element[1]));
+
+				if(this.region == undefined){
+					numberOfRegions++;
+					regions.push([]);
+					this.region = numberOfRegions;
+					regions[map[this.y][this.x].region-1].push(this); //join the region array
 				}
 
 				if(this.y > 0){
 					//over
-					if(map[this.y-1][this.x].height >= 0){
+					if(map[this.y-1][this.x].region == undefined){
 						map[this.y-1][this.x].getRegion();
 					}
 				}
 				if(this.x > 0){
 					//left
-					if(map[this.y][this.x-1].height >= 0){
+					if(map[this.y][this.x-1].region == undefined){
 						map[this.y][this.x-1].getRegion();
 					}
 				}
 				if(this.x < mapWidth-1){
 					//right
-					if(map[this.y][this.x+1].height >= 0){
+					if(map[this.y][this.x+1].region == undefined){
 						map[this.y][this.x+1].getRegion();
 					}
 				}
 				if(this.y < mapHeight-1){
 					//under
-					if(map[this.y+1][this.x].height >= 0){
+					if(map[this.y+1][this.x].region == undefined){
 						map[this.y+1][this.x].getRegion();
 					}
 				}
 			}
-			overlayblocks[this.tileNumber].innerHTML = this.region;
 		}
+		overlayblocks[this.tileNumber].innerHTML = this.region;
+		console.log(hashColor(this.region));
+		//overlayblocks[this.tileNumber].style.backgroundColor = hashColor(this.region);
 	}
 }
 
-let regions = 0;
+let numberOfRegions = 0;
+let regions = [];
+const regionJoinChance = 0.92;
+
+//fisher-yates shuffle
+function shuffle(a) {
+    var j, x, i;
+    for (i = a.length - 1; i > 0; i--) {
+        j = Math.floor(Math.random() * (i + 1));
+        x = a[i];
+        a[i] = a[j];
+        a[j] = x;
+    }
+    return a;
+}
+
+function hashColor(number){
+	let possibles = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
+	let color = '#';
+	let offset = 5;
+	for(var i =0;i<6;i++){
+		color += possibles[(number+offset*i+number*offset*i)%possibles.length];
+	}
+	return color;
+}
 
 //----keybinds
 
-document.addEventListener('keydown', myFunction);
+document.addEventListener('keydown', keyClick);
 
-function myFunction(e){
+function keyClick(e){
 	if(e.code == "KeyA"){
 		for(let i = 0; i < mapWidth*mapHeight;i++){
 			findTile(i).changeHeigth();
@@ -177,12 +209,7 @@ function createMap() {
 				let o = new TileClass(tileCounter, randInt(-newHeigthRange / 2, newHeigthRange / 2), i, j);
 				line.push(o);
 			} else {
-				let o = new TileClass(
-					tileCounter,
-					line[j - 1].height + randInt(-newHeigthRange / 2, newHeigthRange / 2),
-					i,
-					j
-				); // (-4)-4 range
+				let o = new TileClass(tileCounter, line[j - 1].height + randInt(-newHeigthRange / 2, newHeigthRange / 2), i, j);
 				line.push(o);
 			}
 			tileCounter++;
@@ -193,10 +220,9 @@ function createMap() {
 
 createRegions();
 function createRegions(){
-	/*for(let i = 0; i < mapHeight*mapWidth;i++){
+	for(let i = 0; i < mapHeight*mapWidth;i++){
 		findTile(i).getRegion();
-	}*/
-	map[0][0].getRegion();
+	}
 }
 
 //--------------------MODAL-------------------------------
@@ -229,7 +255,7 @@ function findTile(tile) {
 }
 
 function selected(e) {
-	modal.style.display = 'block';
+	//modal.style.display = 'block';
 	console.log(findTile(e.target.id));
 	spantextEl.innerHTML = `Dette er block ${e.target.id}<br>Denne har: ${findTile(e.target.id).height} hoyde`;
 
@@ -241,6 +267,8 @@ function selected(e) {
 			pointer = 0;
 		}
 	}
+
+	findTile(e.target.id).getRegion();
 
 	/*if(map[line][pointer] == 0){
 		map[line][pointer] = 1;
@@ -279,6 +307,6 @@ function drawGame() {
 			}
 		}
 	}
-	//setTimeout(drawGame, 1000);
-	requestAnimationFrame(drawGame);
+	setTimeout(drawGame, 300);
+	//requestAnimationFrame(drawGame);
 }
