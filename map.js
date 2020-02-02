@@ -1,27 +1,27 @@
 //-------------------MAP-OG-OVERLAY------------------------
 class TileClass {
-	constructor(tileNumber, heigth, y, x) {
+	constructor(tileNumber, height, y, x) {
 		this.tileNumber = tileNumber;
-		this.height = heigth;
+		this.height = height;
 		this.y = y;
 		this.x = x;
 
-		this.fixHeigth();
+		this.fixHeight();
 	}
-	fixHeigth() {
-		//console.log(this.heigth)
-		if (this.height > maxHeigth) {
-			this.height = maxHeigth;
-		} else if (this.height < minHeigth) {
-			this.height = minHeigth;
+	fixHeight() {
+		//console.log(this.height)
+		if (this.height > maxHeight) {
+			this.height = maxHeight;
+		} else if (this.height < minHeight) {
+			this.height = minHeight;
 		}
 
 		if (this.y > 0) {
 			//compares to line over
-			if (this.height < map[this.y - 1][this.x].height - heigthToOver) {
-				this.height = map[this.y - 1][this.x].height - heigthToOver;
-			} else if (this.height > map[this.y - 1][this.x].height + heigthToOver) {
-				this.height = map[this.y - 1][this.x].height + heigthToOver;
+			if (this.height < map[this.y - 1][this.x].height - heightToOver) {
+				this.height = map[this.y - 1][this.x].height - heightToOver;
+			} else if (this.height > map[this.y - 1][this.x].height + heightToOver) {
+				this.height = map[this.y - 1][this.x].height + heightToOver;
 			}
 		}
 
@@ -33,7 +33,7 @@ class TileClass {
 			this.type = 'sea';
 		}
 	}
-	changeHeigth() {
+	changeHeight() {
 		if (Math.random() < 0.5) {
 			if (Math.random() < 0.5) {
 				this.height++;
@@ -41,7 +41,7 @@ class TileClass {
 				this.height--;
 			}
 		}
-		this.fixHeigth();
+		this.fixHeight();
 	}
 	checkRegionTo(y,x){
 		try{
@@ -51,9 +51,14 @@ class TileClass {
 					regions[map[y][x].region-1].push(this); //join the region array
 				}
 			}
-		} catch(err){
-			console.log('dgb');
-		}
+		} catch(err){}
+	}
+	sendRegionCheck(y,x){
+		try{
+			if(map[y][x].region == undefined){
+				map[y][x].getRegion();
+			}
+		}catch(err){}
 	}
 	getRegion(){
 		if(this.height < 0){
@@ -62,10 +67,12 @@ class TileClass {
 		if(this.region == undefined){
 			if(this.height >= 0){
 				
-				let aroundTests= [[this.y-1,this.x],[this.y,this.x-1],[this.y,this.x+1],[this.y+1,this.x]];
-				shuffle(aroundTests);
-				aroundTests.forEach(element => this.checkRegionTo(element[0],element[1]));
+				//tests if the tiles around has a region in a random order
+				let aroundTiles= [[this.y-1,this.x],[this.y,this.x-1],[this.y,this.x+1],[this.y+1,this.x]];
+				shuffle(aroundTiles);
+				aroundTiles.forEach(element => this.checkRegionTo(element[0],element[1]));
 
+				//if this tile did not get a region, then it creates a new one
 				if(this.region == undefined){
 					numberOfRegions++;
 					regions.push([]);
@@ -73,35 +80,10 @@ class TileClass {
 					regions[map[this.y][this.x].region-1].push(this); //join the region array
 				}
 
-				if(this.y > 0){
-					//over
-					if(map[this.y-1][this.x].region == undefined){
-						map[this.y-1][this.x].getRegion();
-					}
-				}
-				if(this.x > 0){
-					//left
-					if(map[this.y][this.x-1].region == undefined){
-						map[this.y][this.x-1].getRegion();
-					}
-				}
-				if(this.x < mapWidth-1){
-					//right
-					if(map[this.y][this.x+1].region == undefined){
-						map[this.y][this.x+1].getRegion();
-					}
-				}
-				if(this.y < mapHeight-1){
-					//under
-					if(map[this.y+1][this.x].region == undefined){
-						map[this.y+1][this.x].getRegion();
-					}
-				}
+				//makes the tiles around do the regionCheck
+				aroundTiles.forEach(element => this.sendRegionCheck(element[0],element[1]));
 			}
 		}
-		overlayblocks[this.tileNumber].innerHTML = this.region;
-		console.log(hashColor(this.region));
-		//overlayblocks[this.tileNumber].style.backgroundColor = hashColor(this.region);
 	}
 }
 
@@ -126,9 +108,20 @@ function hashColor(number){
 	let color = '#';
 	let offset = 5;
 	for(var i =0;i<6;i++){
-		color += possibles[(number+offset*i+number*offset*i)%possibles.length];
+		color += possibles[(number+offset*i+(number*offset)%11*i)%possibles.length];
+	}
+	if(number == 0){
+		return 'rgba(0,0,0,0)';
 	}
 	return color;
+}
+
+function heightMap(height){
+	if(height >= 0){
+		return `rgba(90,60,20,${height/maxHeight})`
+	}else{
+		return `rgba(45,20,90,${height/minHeight})`
+	}
 }
 
 //----keybinds
@@ -138,9 +131,26 @@ document.addEventListener('keydown', keyClick);
 function keyClick(e){
 	if(e.code == "KeyA"){
 		for(let i = 0; i < mapWidth*mapHeight;i++){
-			findTile(i).changeHeigth();
+			findTile(i).changeHeight();
 		}
-		console.log(e.code);
+	} else if(e.code == 'KeyQ'){
+		for(var i = 0; i < mapHeight*mapWidth; i++){
+			overlayblocks[i].innerHTML = '';
+			overlayblocks[i].style.backgroundColor = 'blue';
+			overlayblocks[i].style.opacity = '0';
+		}
+	} else if(e.code == 'KeyW'){
+		for(var i = 0; i < mapHeight*mapWidth; i++){
+			overlayblocks[i].innerHTML = findTile(i).height;
+			overlayblocks[i].style.backgroundColor = heightMap(findTile(i).height);
+			overlayblocks[i].style.opacity = '1';
+		}
+	} else if(e.code == 'KeyE'){
+		for(var i = 0; i < mapHeight*mapWidth; i++){
+			overlayblocks[i].innerHTML = findTile(i).region;
+			overlayblocks[i].style.backgroundColor = hashColor(findTile(i).region);
+			overlayblocks[i].style.opacity = '1';
+		}
 	}
 }
 
@@ -186,11 +196,11 @@ function randInt(min, max) {
 	return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-const maxHeigth = 20;
-const minHeigth = -20;
-const heightRange = maxHeigth - minHeigth;
-const newHeigthRange = 12; // 10 => (-5) - 5
-const heigthToOver = 7;
+const maxHeight = 20;
+const minHeight = -20;
+const heightRange = maxHeight - minHeight;
+const newHeightRange = 12; // 10 => (-5) - 5
+const heightToOver = 7;
 
 //const mapTypeChances = [ 1, 2 ];
 // const mapTotalChance = mapTypeChances.reduce();
@@ -206,10 +216,10 @@ function createMap() {
 		for (var j = 0; j < mapWidth; j++) {
 			if (j == 0) {
 				//first tile on new line
-				let o = new TileClass(tileCounter, randInt(-newHeigthRange / 2, newHeigthRange / 2), i, j);
+				let o = new TileClass(tileCounter, randInt(-newHeightRange / 2, newHeightRange / 2), i, j);
 				line.push(o);
 			} else {
-				let o = new TileClass(tileCounter, line[j - 1].height + randInt(-newHeigthRange / 2, newHeigthRange / 2), i, j);
+				let o = new TileClass(tileCounter, line[j - 1].height + randInt(-newHeightRange / 2, newHeightRange / 2), i, j);
 				line.push(o);
 			}
 			tileCounter++;

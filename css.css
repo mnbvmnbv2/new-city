@@ -22,6 +22,7 @@ body {
 	justify-content: center;
 	z-index: 10;
 	cursor: pointer;
+	background-color: rgba(0,0,0,0);
 }
 .overlayBlock:hover {
 	opacity: 0.5;
