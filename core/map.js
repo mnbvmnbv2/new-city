@@ -28,7 +28,7 @@ class TileClass {
 		}
 
 		if (this.height == 0 || this.height == 1) {
-			this.type = 'grass';
+			this.type = 'sand';
 		} else if (this.height >= 15) {
 			this.type = 'mountain';
 		} else if (this.height >= 10) {
