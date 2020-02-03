@@ -20,17 +20,23 @@ class TileClass {
 
 		if (this.y > 0) {
 			//compares to line over
-			if (this.height < map[this.y - 1][this.x].height - heightToOver) {
-				this.height = map[this.y - 1][this.x].height - heightToOver;
-			} else if (this.height > map[this.y - 1][this.x].height + heightToOver) {
-				this.height = map[this.y - 1][this.x].height + heightToOver;
+			if (this.height < this.north().height - heightToOver) {
+				this.height = this.north().height - heightToOver;
+			} else if (this.height > this.north().height + heightToOver) {
+				this.height = this.north().height + heightToOver;
 			}
 		}
 
-		if(this.height == 0 || this.height == 1) {
+		if (this.height == 0 || this.height == 1) {
 			this.type = 'grass';
-		} else if ( this.height >= 0) {
+		} else if (this.height >= 15) {
+			this.type = 'mountain';
+		} else if (this.height >= 10) {
+			this.type = 'desertDune';
+		} else if (this.height >= 0) {
 			this.type = 'desert';
+		} else if (this.height >= -10) {
+			this.type = 'coast';
 		} else {
 			this.type = 'sea';
 		}
@@ -45,99 +51,103 @@ class TileClass {
 		}
 		this.fixHeight();
 	}
-	north(){
-		try{
-			return map[this.y-1][this.x];
-		}catch{
+	north() {
+		try {
+			return map[this.y - 1][this.x];
+		} catch (err) {
 			return false;
 		}
 	}
-	west(){
-		try{
-			return map[this.y][this.x-1];
-		}catch{
+	west() {
+		try {
+			return map[this.y][this.x - 1];
+		} catch (err) {
 			return false;
 		}
 	}
-	east(){
-		try{
-			return map[this.y][this.x+1];
-		}catch{
+	east() {
+		try {
+			return map[this.y][this.x + 1];
+		} catch (err) {
 			return false;
 		}
 	}
-	south(){
-		try{
-			return map[this.y+1][this.x];
-		}catch{
+	south() {
+		try {
+			return map[this.y + 1][this.x];
+		} catch (err) {
 			return false;
 		}
 	}
-	setClimate(){
-		if(this.height >= 0){
-			this.climate = Math.floor(this.y - (this.height * heigthClimateValue) + topClimate) + randInt(-climateVariation, climateVariation);
-		} else{
+	setClimate() {
+		if (this.height >= 0) {
+			this.climate =
+				Math.floor(this.y - this.height * heigthClimateValue + topClimate) +
+				randInt(-climateVariation, climateVariation);
+		} else {
 			this.climate = Math.floor(this.y + topClimate) + seaClimate + randInt(-climateVariation, climateVariation);
 		}
 	}
-	setWeather(){
-		let weatherChance = Math.random()*totalWeatherChance;
+	setWeather() {
+		let weatherChance = Math.random() * totalWeatherChance;
 		let toNow = 0;
-		for(let name in Weather){
-			if(weatherChance < Weather[name] + toNow){
+		for (let name in Weather) {
+			if (weatherChance < Weather[name] + toNow) {
 				this.weather = name;
 				break;
-			} else{
+			} else {
 				toNow += Weather[name];
 			}
 		}
 	}
-	setTemperature(){
-		this.temperature = this.climate + randInt(-temperatureChange,temperatureChange);
+	setTemperature() {
+		this.temperature = this.climate + randInt(-temperatureChange, temperatureChange);
 	}
-	changeTemperature(){
-		this.temperature += randInt(-1,1);
-		if(this.temperature > this.climate + temperatureChange){
+	changeTemperature() {
+		this.temperature += randInt(-1, 1);
+		if (this.temperature > this.climate + temperatureChange) {
 			this.temperature = this.climate + temperatureChange;
-		} else if(this.temperature < this.climate - temperatureChange){
+		} else if (this.temperature < this.climate - temperatureChange) {
 			this.temperature = this.climate - temperatureChange;
 		}
 	}
-	checkRegionTo(tile){
-		try{
-			if(tile.region != 0 && tile.region != undefined){ //if tile has region
-				if(Math.random() < regionJoinChance + (regionJoinMinimum - (regions[tile.region-1].length / 10))){ //chance for this to join its region
+	checkRegionTo(tile) {
+		try {
+			if (tile.region != 0 && tile.region != undefined) {
+				//if tile has region
+				if (Math.random() < regionJoinChance + (regionJoinMinimum - regions[tile.region - 1].length / 10)) {
+					//chance for this to join its region
 					this.region = tile.region; //this gets its region
-					regions[tile.region-1].push(this); //join the region array
+					regions[tile.region - 1].push(this); //join the region array
 				}
 			}
-		} catch(err){}
+		} catch (err) {}
 	}
-	setRegion(){
-		try{
-			if(this.height < 0){
+	setRegion() {
+		try {
+			if (this.height < 0) {
 				this.region = 0;
 			}
-			if(this.region == undefined){
-				if(this.height >= 0){
+			if (this.region == undefined) {
+				if (this.height >= 0) {
 					//tests if the tiles around has a region in a random order
-					let aroundTiles= [this.north(),this.west(),this.east(),this.south()];
+					let aroundTiles = [ this.north(), this.west(), this.east(), this.south() ];
 					shuffle(aroundTiles);
-					aroundTiles.forEach(element => this.checkRegionTo(element));
+					aroundTiles.forEach((element) => this.checkRegionTo(element));
 
 					//if this tile did not get a region, then it creates a new one
-					if(this.region == undefined){
+					if (this.region == undefined) {
 						numberOfRegions++;
 						regions.push([]);
 						this.region = numberOfRegions;
-						regions[map[this.y][this.x].region-1].push(this); //join the region array
+						regions[map[this.y][this.x].region - 1].push(this); //join the region array
 					}
 
 					//makes the tiles around do the regionCheck
-					aroundTiles.forEach(element => element.setRegion());
+					aroundTiles.forEach((element) => element.setRegion());
 				}
 			}
-		}catch{}
+		} catch (err) {}
 	}
 }
 
@@ -148,99 +158,99 @@ const regionJoinMinimum = 0.44;
 
 //fisher-yates shuffle
 function shuffle(a) {
-    var j, x, i;
-    for (i = a.length - 1; i > 0; i--) {
-        j = Math.floor(Math.random() * (i + 1));
-        x = a[i];
-        a[i] = a[j];
-        a[j] = x;
-    }
-    return a;
+	var j, x, i;
+	for (i = a.length - 1; i > 0; i--) {
+		j = Math.floor(Math.random() * (i + 1));
+		x = a[i];
+		a[i] = a[j];
+		a[j] = x;
+	}
+	return a;
 }
 
 //------------------MAPMODES----COLORS-----------------
 
 let activeMode = 'none';
 
-function mapMode(mode){
-	for(var i = 0; i < mapHeight*mapWidth; i++){
+function mapMode(mode) {
+	for (var i = 0; i < mapHeight * mapWidth; i++) {
 		overlayblocks[i].innerHTML = findTile(i)[mode];
 		overlayblocks[i].style.backgroundColor = colorModes[mode](findTile(i)[mode]);
 	}
 	activeMode = mode;
 }
 
-const randomRegionColors = Math.floor(Math.random()*9)+2;
+const randomRegionColors = Math.floor(Math.random() * 9) + 2;
 
 let colorModes = {
-	none: function(){
-		for(var i = 0; i < mapHeight*mapWidth; i++){
+	none        : function() {
+		for (var i = 0; i < mapHeight * mapWidth; i++) {
 			overlayblocks[i].innerHTML = '';
 			overlayblocks[i].style.backgroundColor = 'rgba(0,0,0,0)';
 		}
 	},
-	height: function(height){
-		if(height >= 0){
-			return `rgba(90,60,20,${height/maxHeight})`
-		}else{
-			return `rgba(45,20,90,${height/minHeight})`
+	height      : function(height) {
+		if (height >= 0) {
+			return `rgba(90,60,20,${height / maxHeight})`;
+		} else {
+			return `rgba(45,20,90,${height / minHeight})`;
 		}
 	},
-	region: function(region){
-		let possibles = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'];
+	region      : function(region) {
+		let possibles = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' ];
 		let color = '#';
 		let offset = randomRegionColors;
-		for(var i=0;i<6;i++){
-			color += possibles[(region+offset*i+(region*offset)%11*i)%possibles.length]; //hashing?
+		for (var i = 0; i < 6; i++) {
+			color += possibles[(region + offset * i + ((region * offset) % 11) * i) % possibles.length]; //hashing?
 		}
-		if(region == 0){
+		if (region == 0) {
 			return 'rgba(0,0,0,0)';
 		}
 		return color;
 	},
-	climate: function(climate){
-		if(climate < 0){
-			return `rgba(0,0,150,${climate/minClimate})`
-		} else{
-			return `rgba(200,0,0,${climate/maxClimate})`
+	climate     : function(climate) {
+		if (climate < 0) {
+			return `rgba(0,0,150,${climate / minClimate})`;
+		} else {
+			return `rgba(200,0,0,${climate / maxClimate})`;
 		}
 	},
-	temperature: function(temperature){
-		if(temperature < 0){
-			return `rgba(0,0,150,${temperature/minTemperature})`
-		} else{
-			return `rgba(200,0,0,${temperature/maxTemperature})`
+	temperature : function(temperature) {
+		if (temperature < 0) {
+			return `rgba(0,0,150,${temperature / minTemperature})`;
+		} else {
+			return `rgba(200,0,0,${temperature / maxTemperature})`;
 		}
 	},
-	weather: function(weather){
-		return `hsla(${Object.keys(Weather).indexOf(weather)*82},85%,50%,0.2)`;
+	weather     : function(weather) {
+		return `hsla(${Object.keys(Weather).indexOf(weather) * 82},85%,50%,0.2)`;
 	}
-}
+};
 
 //----keybinds
 
 document.addEventListener('keydown', keyClick);
 
-function keyClick(e){
-	if(e.code == "KeyA"){
-		for(let i = 0; i < mapWidth*mapHeight;i++){
+function keyClick(e) {
+	if (e.code == 'KeyA') {
+		for (let i = 0; i < mapWidth * mapHeight; i++) {
 			findTile(i).changeHeight();
 		}
-	} else if(e.code == 'KeyQ'){
-		for(var i = 0; i < mapHeight*mapWidth; i++){
+	} else if (e.code == 'KeyQ') {
+		for (var i = 0; i < mapHeight * mapWidth; i++) {
 			overlayblocks[i].innerHTML = '';
 			overlayblocks[i].style.backgroundColor = 'rgba(0,0,0,0)';
 		}
 		activeMode = 'none';
-	} else if(e.code == 'KeyW'){
+	} else if (e.code == 'KeyW') {
 		mapMode('height');
-	} else if(e.code == 'KeyE'){
+	} else if (e.code == 'KeyE') {
 		mapMode('region');
-	} else if(e.code == 'KeyR'){
+	} else if (e.code == 'KeyR') {
 		mapMode('climate');
-	} else if(e.code == 'KeyT'){
+	} else if (e.code == 'KeyT') {
 		mapMode('temperature');
-	} else if(e.code == 'KeyY'){
+	} else if (e.code == 'KeyY') {
 		mapMode('weather');
 	}
 }
@@ -295,20 +305,19 @@ const heightToOver = 7;
 
 //-------------CLIMATECONFIG------------
 
-
 const climateVariation = 2;
 const topClimate = -10;
-const heigthClimateValue = 1/3;
-const minClimate = topClimate - Math.floor(maxHeight*heigthClimateValue) - climateVariation;
+const heigthClimateValue = 1 / 3;
+const minClimate = topClimate - Math.floor(maxHeight * heigthClimateValue) - climateVariation;
 const maxClimate = mapHeight + topClimate + climateVariation;
 const seaClimate = -2;
 
 //-------------WEATHER-------------------
 
 //key: name, value: chance
-const Weather = {fair: 10, sunny: 5, cloudy: 5, windy: 3, storm: 1, hurric: 0.5};
+const Weather = { fair: 10, sunny: 5, cloudy: 5, windy: 3, storm: 1, hurric: 0.5 };
 let totalWeatherChance = 0;
-for(let name in Weather){
+for (let name in Weather) {
 	totalWeatherChance += Weather[name];
 }
 
@@ -335,7 +344,12 @@ function createMap() {
 				let o = new TileClass(tileCounter, randInt(-newHeightRange / 2, newHeightRange / 2), i, j);
 				line.push(o);
 			} else {
-				let o = new TileClass(tileCounter, line[j - 1].height + randInt(-newHeightRange / 2, newHeightRange / 2), i, j);
+				let o = new TileClass(
+					tileCounter,
+					line[j - 1].height + randInt(-newHeightRange / 2, newHeightRange / 2),
+					i,
+					j
+				);
 				line.push(o);
 			}
 			tileCounter++;
@@ -345,8 +359,8 @@ function createMap() {
 }
 
 createRegions();
-function createRegions(){
-	for(let i = 0; i < mapHeight*mapWidth;i++){
+function createRegions() {
+	for (let i = 0; i < mapHeight * mapWidth; i++) {
 		findTile(i).setRegion();
 	}
 }
