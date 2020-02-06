@@ -111,6 +111,13 @@ class TileClass {
 			this.temperature = this.climate - temperatureChange;
 		}
 	}
+	wind(dir){
+		if(Math.random() < windChance){
+			try{
+				this[dir]().weather = this.weather;
+			} catch(err){}
+		}
+	}
 	checkRegionTo(tile) {
 		try {
 			if (tile.region != 0 && tile.region != undefined) {
@@ -166,6 +173,20 @@ function shuffle(a) {
 		a[j] = x;
 	}
 	return a;
+}
+
+//---------------ON-ALL--------------------------------
+
+function onAll(fun, arg){
+	for(let i = 0; i < mapWidth*mapHeight; i++){
+        findTile(i)[fun](arg);
+    }
+}
+
+function inverseOnAll(fun, arg){
+	for(let i = mapWidth*mapHeight-1; i > -1; i--){
+		findTile(i)[fun](arg);
+	}
 }
 
 //------------------MAPMODES----COLORS-----------------
@@ -319,6 +340,42 @@ const Weather = { fair: 10, sunny: 5, cloudy: 5, windy: 3, storm: 1, hurric: 0.5
 let totalWeatherChance = 0;
 for (let name in Weather) {
 	totalWeatherChance += Weather[name];
+}
+
+//------------WIND--------------------------
+
+const windChance = 0.99;
+
+function wind(direction){
+	if(direction == 'north'){
+		onAll('wind','north');
+		for(tile of map[mapHeight-1]){
+			if(Math.random() < windChance){
+				tile.setWeather();
+			}
+		}
+	} else if(direction == 'west'){
+		onAll('wind','west');
+		for(line of map){
+			if(Math.random() < windChance){
+				line[mapWidth-1].setWeather();
+			}
+		}
+	} else if(direction == 'east'){
+		inverseOnAll('wind','east');
+		for(line of map){
+			if(Math.random() < windChance){
+				line[0].setWeather();
+			}
+		}
+	} else if(direction == 'south'){
+		inverseOnAll('wind','south');
+		for(tile of map[0]){
+			if(Math.random() < windChance){
+				tile.setWeather();
+			}
+		}
+	}
 }
 
 //------------TEMPERATURE----------------
