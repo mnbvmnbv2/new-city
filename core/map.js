@@ -5,6 +5,7 @@ class TileClass {
 		this.height = height;
 		this.y = y;
 		this.x = x;
+		this.name = 'OK';
 
 		this.fixHeight();
 		this.setClimate();
@@ -111,11 +112,12 @@ class TileClass {
 			this.temperature = this.climate - temperatureChange;
 		}
 	}
-	wind(dir){
-		if(Math.random() < windChance){
-			try{
+	wind(dir) {
+		if (Math.random() < windChance) {
+			try {
 				this[dir]().weather = this.weather;
-			} catch(err){}
+				this.setWeather();
+			} catch (err) {}
 		}
 	}
 	checkRegionTo(tile) {
@@ -156,6 +158,16 @@ class TileClass {
 			}
 		} catch (err) {}
 	}
+	toString() {
+		return `Name : ${this.name}
+		Heigth: ${this.height}
+		x : ${this.x}
+		y : ${this.y}
+		Region : ${this.region}
+		Mean-temp : ${this.climate}
+		Temperature : ${this.temperature}
+		Weather : ${this.weather}`;
+	}
 }
 
 let numberOfRegions = 0;
@@ -177,14 +189,14 @@ function shuffle(a) {
 
 //---------------ON-ALL--------------------------------
 
-function onAll(fun, arg){
-	for(let i = 0; i < mapWidth*mapHeight; i++){
-        findTile(i)[fun](arg);
-    }
+function onAll(fun, arg) {
+	for (let i = 0; i < mapWidth * mapHeight; i++) {
+		findTile(i)[fun](arg);
+	}
 }
 
-function inverseOnAll(fun, arg){
-	for(let i = mapWidth*mapHeight-1; i > -1; i--){
+function inverseOnAll(fun, arg) {
+	for (let i = mapWidth * mapHeight - 1; i > -1; i--) {
 		findTile(i)[fun](arg);
 	}
 }
@@ -344,34 +356,34 @@ for (let name in Weather) {
 
 //------------WIND--------------------------
 
-const windChance = 0.99;
+const windChance = 0.92;
 
-function wind(direction){
-	if(direction == 'north'){
-		onAll('wind','north');
-		for(tile of map[mapHeight-1]){
-			if(Math.random() < windChance){
+function wind(direction) {
+	if (direction == 'north') {
+		onAll('wind', 'north');
+		for (tile of map[mapHeight - 1]) {
+			if (Math.random() < windChance) {
 				tile.setWeather();
 			}
 		}
-	} else if(direction == 'west'){
-		onAll('wind','west');
-		for(line of map){
-			if(Math.random() < windChance){
-				line[mapWidth-1].setWeather();
+	} else if (direction == 'west') {
+		onAll('wind', 'west');
+		for (line of map) {
+			if (Math.random() < windChance) {
+				line[mapWidth - 1].setWeather();
 			}
 		}
-	} else if(direction == 'east'){
-		inverseOnAll('wind','east');
-		for(line of map){
-			if(Math.random() < windChance){
+	} else if (direction == 'east') {
+		inverseOnAll('wind', 'east');
+		for (line of map) {
+			if (Math.random() < windChance) {
 				line[0].setWeather();
 			}
 		}
-	} else if(direction == 'south'){
-		inverseOnAll('wind','south');
-		for(tile of map[0]){
-			if(Math.random() < windChance){
+	} else if (direction == 'south') {
+		inverseOnAll('wind', 'south');
+		for (tile of map[0]) {
+			if (Math.random() < windChance) {
 				tile.setWeather();
 			}
 		}
@@ -445,16 +457,23 @@ window.onclick = function(event) {
 
 //--------------------------------------------------------------
 
+let activeTile = 0;
+
 function findTile(tile) {
 	let i = Math.floor(tile / mapWidth);
 	let j = tile - mapWidth * i;
 	return map[i][j];
 }
 
+const helpfulEl = document.getElementById('helpful');
+
 function selected(e) {
 	//modal.style.display = 'block';
 	console.log(findTile(e.target.id));
 	spantextEl.innerHTML = `Dette er block ${e.target.id}<br>Denne har: ${findTile(e.target.id).height} hoyde`;
+
+	activeTile = e.target.id;
+	helpfulEl.innerHTML = findTile(activeTile).toString();
 
 	let pointer = 0;
 	for (var i = 0; i < Number(e.target.id); i++) {
@@ -493,7 +512,7 @@ function drawGame() {
 		for (var j = 0; j < map[i].length; j++) {
 			tilePic = document.createElement('img');
 
-			tilePic.src = `bilder/${map[i][j].type}/0.png`;
+			tilePic.src = `bilder/tiles/${map[i][j].type}/0.png`;
 
 			ctx.drawImage(tilePic, x, y * 7 / 5, boxSize, boxSize * 7 / 5);
 
