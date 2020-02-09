@@ -11,6 +11,7 @@ class TileClass {
 		this.setClimate();
 		this.setWeather();
 		this.setTemperature();
+		this.setResource();
 	}
 	fixHeight() {
 		if (this.height > maxHeight) {
@@ -90,16 +91,7 @@ class TileClass {
 		}
 	}
 	setWeather() {
-		let weatherChance = Math.random() * totalWeatherChance;
-		let toNow = 0;
-		for (let name in Weather) {
-			if (weatherChance < Weather[name] + toNow) {
-				this.weather = name;
-				break;
-			} else {
-				toNow += Weather[name];
-			}
-		}
+		this.weather = this.pickInDatabase(Weather)[0];
 	}
 	setTemperature() {
 		this.temperature = this.climate + randInt(-temperatureChange, temperatureChange);
@@ -168,6 +160,29 @@ class TileClass {
 		Temperature : ${this.temperature}
 		Weather : ${this.weather}`;
 	}
+	setResource(){
+		if(this.height >= 0){
+			this.resource = this.pickInDatabase(Resources.land)[0];
+		} else {
+			this.resource = this.pickInDatabase(Resources.sea)[0];
+		}
+	}
+	pickInDatabase(database){
+		let totalChance = 0;
+		for (let name in database) {
+			totalChance += database[name].chance;
+		}
+
+		let chance = Math.random() * totalChance;
+		let toNow = 0;
+		for (let name in database) {
+			if (chance < database[name].chance + toNow) {
+				return [name, database[name]];
+			} else {
+				toNow += database[name].chance;
+			}
+		}
+	}
 }
 
 let numberOfRegions = 0;
@@ -208,7 +223,7 @@ let activeMode = 'none';
 function mapMode(mode) {
 	for (var i = 0; i < mapHeight * mapWidth; i++) {
 		overlayblocks[i].innerHTML = findTile(i)[mode];
-		overlayblocks[i].style.backgroundColor = colorModes[mode](findTile(i)[mode]);
+		overlayblocks[i].style.background = colorModes[mode](findTile(i)[mode]);
 	}
 	activeMode = mode;
 }
@@ -219,8 +234,9 @@ let colorModes = {
 	none        : function() {
 		for (var i = 0; i < mapHeight * mapWidth; i++) {
 			overlayblocks[i].innerHTML = '';
-			overlayblocks[i].style.backgroundColor = 'rgba(0,0,0,0)';
+			overlayblocks[i].style.background = 'rgba(0,0,0,0)';
 		}
+		activeMode = 'none';
 	},
 	height      : function(height) {
 		if (height >= 0) {
@@ -257,6 +273,9 @@ let colorModes = {
 	},
 	weather     : function(weather) {
 		return `hsla(${Object.keys(Weather).indexOf(weather) * 82},85%,50%,0.2)`;
+	},
+	resource : function(resource){
+		return `rgba(0,0,0,0) url(bilder/resources/${resource}.png) no-repeat center`;
 	}
 };
 
@@ -270,20 +289,18 @@ function keyClick(e) {
 			findTile(i).changeHeight();
 		}
 	} else if (e.code == 'KeyQ') {
-		for (var i = 0; i < mapHeight * mapWidth; i++) {
-			overlayblocks[i].innerHTML = '';
-			overlayblocks[i].style.backgroundColor = 'rgba(0,0,0,0)';
-		}
-		activeMode = 'none';
+		colorModes.none();
 	} else if (e.code == 'KeyW') {
 		mapMode('height');
 	} else if (e.code == 'KeyE') {
 		mapMode('region');
 	} else if (e.code == 'KeyR') {
-		mapMode('climate');
+		mapMode('resource');
 	} else if (e.code == 'KeyT') {
 		mapMode('temperature');
 	} else if (e.code == 'KeyY') {
+		mapMode('climate');
+	} else if (e.code == 'KeyU'){
 		mapMode('weather');
 	}
 }
@@ -347,12 +364,28 @@ const seaClimate = -2;
 
 //-------------WEATHER-------------------
 
-//key: name, value: chance
-const Weather = { fair: 10, sunny: 5, cloudy: 5, windy: 3, storm: 1, hurric: 0.5 };
-let totalWeatherChance = 0;
-for (let name in Weather) {
-	totalWeatherChance += Weather[name];
-}
+const Weather = { 
+	'fair': {chance : 10},
+	'sunny': {chance : 5},
+	'cloudy': {chance : 5},
+	'windy': {chance : 3},
+	'storm': {chance : 1},
+	'hurric': {chance : 0.5} };
+
+//-------------RESOURCES----------------------
+
+const Resources = { 
+	sea: {
+	fish: {chance : 10}, 
+	whale: {chance : 2}, 
+	sharks : {chance : 0.5}},
+
+	land : {
+	gold: {chance : 0.1},
+	iron : {chance : 0.5}, 
+	copper : {chance : 0.3}, 
+	cattle : {chance : 2}, 
+	wheat : {chance : 4}}};
 
 //------------WIND--------------------------
 
