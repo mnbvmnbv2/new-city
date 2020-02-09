@@ -158,7 +158,8 @@ class TileClass {
 		Region : ${this.region}
 		Mean-temp : ${this.climate}
 		Temperature : ${this.temperature}
-		Weather : ${this.weather}`;
+		Weather : ${this.weather}
+		Resource : ${this.resource}`;
 	}
 	setResource(){
 		if(this.height >= 0){
@@ -302,6 +303,8 @@ function keyClick(e) {
 		mapMode('climate');
 	} else if (e.code == 'KeyU'){
 		mapMode('weather');
+	} else if (e.code == 'Escape'){
+		openMenu();
 	}
 }
 
@@ -488,7 +491,7 @@ window.onclick = function(event) {
 	}
 };
 
-//--------------------------------------------------------------
+//---------------------TILECLICK----------------------------
 
 let activeTile = 0;
 
@@ -507,23 +510,6 @@ function selected(e) {
 
 	activeTile = e.target.id;
 	helpfulEl.innerHTML = findTile(activeTile).toString();
-
-	let pointer = 0;
-	for (var i = 0; i < Number(e.target.id); i++) {
-		pointer++;
-		if (pointer > mapWidth - 1) {
-			line++;
-			pointer = 0;
-		}
-	}
-
-	findTile(e.target.id).setRegion();
-
-	/*if(map[line][pointer] == 0){
-		map[line][pointer] = 1;
-	} else{
-		map[line][pointer] = 0;
-	}*/
 }
 
 //--------------------TILES-------------------------------
