@@ -16,7 +16,6 @@ function timeTick() {
 	} else if (activeMode == 'temperature') {
 		mapMode('temperature');
 	}
-	//console.log('tick');
 	setTimeout(timeTick, 1000);
 }
 timeTick();

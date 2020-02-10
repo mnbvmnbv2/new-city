@@ -150,6 +150,47 @@ class TileClass {
 			}
 		} catch (err) {}
 	}
+	checkSeaRegionTo(tile) {
+		try {
+			if (tile.seaRegion != 0 && tile.seaRegion != undefined) {
+				//if tile has region
+				if (
+					Math.random() <
+					regionJoinChance + (regionJoinMinimum - seaRegions[tile.seaRegion - 1].length / 10)
+				) {
+					//chance for this to join its region
+					this.seaRegion = tile.seaRegion; //this gets its region
+					seaRegions[tile.seaRegion - 1].push(this); //join the region array
+				}
+			}
+		} catch (err) {}
+	}
+	setSeaRegion() {
+		try {
+			if (this.height >= 0) {
+				this.seaRegion = 0;
+			}
+			if (this.seaRegion == undefined) {
+				if (this.height < 0) {
+					//tests if the tiles around has a region in a random order
+					let aroundTiles = [ this.north(), this.west(), this.east(), this.south() ];
+					shuffle(aroundTiles);
+					aroundTiles.forEach((element) => this.checkSeaRegionTo(element));
+
+					//if this tile did not get a region, then it creates a new one
+					if (this.seaRegion == undefined) {
+						numberOfSeaRegions++;
+						seaRegions.push([]);
+						this.seaRegion = numberOfSeaRegions;
+						seaRegions[map[this.y][this.x].seaRegion - 1].push(this); //join the region array
+					}
+
+					//makes the tiles around do the regionCheck
+					aroundTiles.forEach((element) => element.setSeaRegion());
+				}
+			}
+		} catch (err) {}
+	}
 	toString() {
 		return `Name : ${this.name}
 		Heigth: ${this.height}
@@ -161,14 +202,14 @@ class TileClass {
 		Weather : ${this.weather}
 		Resource : ${this.resource}`;
 	}
-	setResource(){
-		if(this.height >= 0){
+	setResource() {
+		if (this.height >= 0) {
 			this.resource = this.pickInDatabase(Resources.land)[0];
 		} else {
 			this.resource = this.pickInDatabase(Resources.sea)[0];
 		}
 	}
-	pickInDatabase(database){
+	pickInDatabase(database) {
 		let totalChance = 0;
 		for (let name in database) {
 			totalChance += database[name].chance;
@@ -178,7 +219,7 @@ class TileClass {
 		let toNow = 0;
 		for (let name in database) {
 			if (chance < database[name].chance + toNow) {
-				return [name, database[name]];
+				return [ name, database[name] ];
 			} else {
 				toNow += database[name].chance;
 			}
@@ -188,6 +229,8 @@ class TileClass {
 
 let numberOfRegions = 0;
 let regions = [];
+let numberOfSeaRegions = 0;
+let seaRegions = [];
 const regionJoinChance = 0.92;
 const regionJoinMinimum = 0.44;
 
@@ -258,6 +301,12 @@ let colorModes = {
 		}
 		return color;
 	},
+	seaRegion   : function(seaRegion) {
+		if (seaRegion == 0) {
+			return 'rgba(0,0,0,0)';
+		}
+		return `hsla(${seaRegion * 49},${(seaRegion * 7) % 30 + 60}%,${(seaRegion * 17) % 30 + 35}%,1)`;
+	},
 	climate     : function(climate) {
 		if (climate < 0) {
 			return `rgba(0,0,150,${climate / minClimate})`;
@@ -275,7 +324,7 @@ let colorModes = {
 	weather     : function(weather) {
 		return `hsla(${Object.keys(Weather).indexOf(weather) * 82},85%,50%,0.2)`;
 	},
-	resource : function(resource){
+	resource    : function(resource) {
 		return `rgba(0,0,0,0) url(bilder/resources/${resource}.png) no-repeat center`;
 	}
 };
@@ -301,9 +350,11 @@ function keyClick(e) {
 		mapMode('temperature');
 	} else if (e.code == 'KeyY') {
 		mapMode('climate');
-	} else if (e.code == 'KeyU'){
+	} else if (e.code == 'KeyU') {
 		mapMode('weather');
-	} else if (e.code == 'Escape'){
+	} else if (e.code == 'KeyI') {
+		mapMode('seaRegion');
+	} else if (e.code == 'Escape') {
 		openMenu();
 	}
 }
@@ -367,28 +418,32 @@ const seaClimate = -2;
 
 //-------------WEATHER-------------------
 
-const Weather = { 
-	'fair': {chance : 10},
-	'sunny': {chance : 5},
-	'cloudy': {chance : 5},
-	'windy': {chance : 3},
-	'storm': {chance : 1},
-	'hurric': {chance : 0.5} };
+const Weather = {
+	fair   : { chance: 10 },
+	sunny  : { chance: 5 },
+	cloudy : { chance: 5 },
+	windy  : { chance: 3 },
+	storm  : { chance: 1 },
+	hurric : { chance: 0.5 }
+};
 
 //-------------RESOURCES----------------------
 
-const Resources = { 
-	sea: {
-	fish: {chance : 10}, 
-	whale: {chance : 2}, 
-	sharks : {chance : 0.5}},
+const Resources = {
+	sea  : {
+		fish   : { chance: 10 },
+		whale  : { chance: 2 },
+		sharks : { chance: 0.5 }
+	},
 
 	land : {
-	gold: {chance : 0.1},
-	iron : {chance : 0.5}, 
-	copper : {chance : 0.3}, 
-	cattle : {chance : 2}, 
-	wheat : {chance : 4}}};
+		gold   : { chance: 0.1 },
+		iron   : { chance: 0.5 },
+		copper : { chance: 0.3 },
+		cattle : { chance: 2 },
+		wheat  : { chance: 4 }
+	}
+};
 
 //------------WIND--------------------------
 
@@ -467,6 +522,7 @@ createRegions();
 function createRegions() {
 	for (let i = 0; i < mapHeight * mapWidth; i++) {
 		findTile(i).setRegion();
+		findTile(i).setSeaRegion();
 	}
 }
 
