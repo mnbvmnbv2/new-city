@@ -5,7 +5,7 @@ function timeTick() {
 		findTile(i).changeTemperature();
 	}
 
-	helpfulEl.innerHTML = findTile(activeTile).toString();
+	helpness();
 
 	if (currentDir != 'none') {
 		wind(currentDir);

@@ -441,7 +441,7 @@ const Resources = {
 		iron   : { chance: 0.5 },
 		copper : { chance: 0.3 },
 		cattle : { chance: 2 },
-		wheat  : { chance: 4 }
+		wheat  : { chance: 3 }
 	}
 };
 
@@ -560,12 +560,9 @@ function findTile(tile) {
 const helpfulEl = document.getElementById('helpful');
 
 function selected(e) {
-	//modal.style.display = 'block';
 	console.log(findTile(e.target.id));
-	spantextEl.innerHTML = `Dette er block ${e.target.id}<br>Denne har: ${findTile(e.target.id).height} hoyde`;
-
 	activeTile = e.target.id;
-	helpfulEl.innerHTML = findTile(activeTile).toString();
+	helpness(findTile(e.target.id));
 }
 
 //--------------------TILES-------------------------------
