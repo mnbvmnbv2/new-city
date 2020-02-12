@@ -9,3 +9,16 @@ function openInfo() {
 	spantextEl.innerHTML = findTile(activeTile).toString();
 	modal.style.display = 'block';
 }
+
+let menuActive = false;
+
+function openMenu() {
+	if (menuActive == false) {
+		menuActive = true;
+		modal.style.display = 'block';
+		spantextEl.innerHTML = `Menu<br>Pause<br>Settings<br>Resume`;
+	} else {
+		menuActive = false;
+		modal.style.display = 'none';
+	}
+}
