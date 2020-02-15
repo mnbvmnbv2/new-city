@@ -44,3 +44,7 @@ image {
 button {
 	color: black !important;
 }
+
+table{
+	text-align: center;
+}
