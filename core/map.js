@@ -584,7 +584,7 @@ function drawGame() {
 		for (var j = 0; j < map[i].length; j++) {
 			tilePic = document.createElement('img');
 
-			tilePic.src = `bilder/tiles/${map[i][j].type}/0.png`;
+			tilePic.src = `pictures/tiles/${map[i][j].type}/0.png`;
 
 			ctx.drawImage(tilePic, x, y * 7 / 5, boxSize, boxSize * 7 / 5);
 
