@@ -360,9 +360,20 @@ function keyClick(e) {
 }
 
 //---------MAPSIZE---------------
-const boxSize = 20;
-const mapWidth = 70;
-const mapHeight = 30;
+let boxSize = 20;
+let mapWidth = 70;
+let mapHeight = 30;
+
+console.log(screen.width);
+if (screen.width >= 1850) {
+	boxSize = 20;
+	mapWidth = 96;
+	mapHeight = 43;
+} else {
+	boxSize = 20;
+	mapWidth = 70;
+	mapHeight = 30;
+}
 //-------------------------------
 
 const gameEl = document.getElementById('game');
@@ -547,15 +558,17 @@ window.onclick = function(event) {
 	}
 };
 
-//---------------------TILECLICK----------------------------
-
-let activeTile = 0;
+//---------------------findtile----------------------------
 
 function findTile(tile) {
 	let i = Math.floor(tile / mapWidth);
 	let j = tile - mapWidth * i;
 	return map[i][j];
 }
+
+//---------------Tileclick---------------
+
+let activeTile = 0;
 
 const helpfulEl = document.getElementById('helpful');
 
@@ -564,6 +577,8 @@ function selected(e) {
 	activeTile = e.target.id;
 	helpness(findTile(e.target.id));
 }
+
+//----------------------------------
 
 //--------------------TILES-------------------------------
 

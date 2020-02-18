@@ -1,37 +1,36 @@
-class InfoTab{
-	constructor(title,p){
+class InfoTab {
+	constructor(title, p) {
 		this.title = title;
 		this.p = p;
 		this.buttons = [];
 	}
-	addBtn(name,toTab,layout){
+	addBtn(name, toTab, layout) {
 		let btn = document.createElement('button');
 		btn.innerHTML = name;
-		btn.addEventListener('click',function(){toTab.print(layout)});
+		btn.addEventListener('click', function() {
+			toTab.print(layout);
+		});
 		this.buttons.push(btn);
 	}
-	print(layout){
-		if(layout == 'normal'){	
+	print(layout) {
+		if (layout == 'normal') {
 			spantextEl.innerHTML = `${this.title}<br>${this.p}<br>`;
 			console.log(this.buttons.length);
-			for(let i = 0; i < this.buttons.length; i++){
+			for (let i = 0; i < this.buttons.length; i++) {
 				spantextEl.appendChild(this.buttons[i]);
 			}
 		}
 	}
 }
 
-let home = new InfoTab('Home','blabla text');
-let other = new InfoTab('Other','123456');
-home.addBtn('toOther',other,'normal');
-other.addBtn('back',home,'normal');
-let tabs = [home, other];
+let home = new InfoTab('Home', 'blabla text');
+let other = new InfoTab('Other', '123456');
+home.addBtn('toOther', other, 'normal');
+other.addBtn('back', home, 'normal');
+let tabs = [ home, other ];
 
 function helpness() {
-	//helpfulEl.innerHTML = findTile(activeTile).toString();
-	helpfulEl.innerHTML = ` <button id='openInfo'>Open</button>`;
-	let openInfoEl = document.getElementById('openInfo');
-	openInfoEl.addEventListener('click', openInfo);
+	openInfo();
 }
 
 function openInfo() {
@@ -40,13 +39,13 @@ function openInfo() {
 }
 
 const infoFuncs = {
-	height : function(){
+	height : function() {
 		///
 	},
-	region : function(){
+	region : function() {
 		///
 	}
-}
+};
 
 let menuActive = false;
 

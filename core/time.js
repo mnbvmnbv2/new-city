@@ -5,8 +5,6 @@ function timeTick() {
 		findTile(i).changeTemperature();
 	}
 
-	helpness();
-
 	if (currentDir != 'none') {
 		wind(currentDir);
 	}
