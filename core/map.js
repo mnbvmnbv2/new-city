@@ -570,12 +570,10 @@ function findTile(tile) {
 
 let activeTile = 0;
 
-const helpfulEl = document.getElementById('helpful');
-
 function selected(e) {
 	console.log(findTile(e.target.id));
 	activeTile = e.target.id;
-	helpness(findTile(e.target.id));
+	openInfo();
 }
 
 //----------------------------------

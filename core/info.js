@@ -4,12 +4,10 @@ class InfoTab {
 		this.p = p;
 		this.buttons = [];
 	}
-	addBtn(name, toTab, layout) {
+	addBtn(name, func) {
 		let btn = document.createElement('button');
 		btn.innerHTML = name;
-		btn.addEventListener('click', function() {
-			toTab.print(layout);
-		});
+		btn.addEventListener('click', func);
 		this.buttons.push(btn);
 	}
 	print(layout) {
@@ -23,14 +21,24 @@ class InfoTab {
 	}
 }
 
+const helpfulEl = document.getElementById('helpful');
+
 let home = new InfoTab('Home', 'blabla text');
 let other = new InfoTab('Other', '123456');
-home.addBtn('toOther', other, 'normal');
-other.addBtn('back', home, 'normal');
+home.addBtn('toOther', function() {
+	other.print('normal');
+});
+other.addBtn('back', function() {
+	home.print('normal');
+});
+other.addBtn('make tent', function() {
+	player.buildings.push('tent');
+});
 let tabs = [ home, other ];
 
 function helpness() {
-	openInfo();
+	//helpfulEl.innerHTML = findTile(activeTile).toString();
+	helpfulEl.innerHTML = `${player.toString()}`;
 }
 
 function openInfo() {

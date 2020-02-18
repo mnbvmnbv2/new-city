@@ -5,6 +5,14 @@ function timeTick() {
 		findTile(i).changeTemperature();
 	}
 
+	//------------eco-----------
+	for (building of player.buildings) {
+		player.gold += 0.1;
+	}
+	//-----------------
+
+	helpness();
+
 	if (currentDir != 'none') {
 		wind(currentDir);
 	}
