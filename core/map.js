@@ -361,18 +361,17 @@ function keyClick(e) {
 
 //---------MAPSIZE---------------
 let boxSize = 20;
-let mapWidth = 70;
-let mapHeight = 30;
+let mapWidth = 85;
+let mapHeight = 37;
 
-console.log(screen.width);
 if (screen.width >= 1850) {
 	boxSize = 20;
 	mapWidth = 96;
 	mapHeight = 43;
 } else {
 	boxSize = 20;
-	mapWidth = 70;
-	mapHeight = 30;
+	mapWidth = 85;
+	mapHeight = 37;
 }
 //-------------------------------
 
