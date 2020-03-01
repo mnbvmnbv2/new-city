@@ -57,28 +57,28 @@ class TileClass {
 		try {
 			return map[this.y - 1][this.x];
 		} catch (err) {
-			return false;
+			return null;
 		}
 	}
 	west() {
 		try {
 			return map[this.y][this.x - 1];
 		} catch (err) {
-			return false;
+			return null;
 		}
 	}
 	east() {
 		try {
 			return map[this.y][this.x + 1];
 		} catch (err) {
-			return false;
+			return null;
 		}
 	}
 	south() {
 		try {
 			return map[this.y + 1][this.x];
 		} catch (err) {
-			return false;
+			return null;
 		}
 	}
 	setClimate() {
@@ -233,18 +233,6 @@ let numberOfSeaRegions = 0;
 let seaRegions = [];
 const regionJoinChance = 0.92;
 const regionJoinMinimum = 0.44;
-
-//fisher-yates shuffle
-function shuffle(a) {
-	var j, x, i;
-	for (i = a.length - 1; i > 0; i--) {
-		j = Math.floor(Math.random() * (i + 1));
-		x = a[i];
-		a[i] = a[j];
-		a[j] = x;
-	}
-	return a;
-}
 
 //---------------ON-ALL--------------------------------
 
@@ -406,10 +394,6 @@ for (var i = 0; i < overlayblocks.length; i++) {
 }
 
 //--------------MAPMAKER------------------------
-
-function randInt(min, max) {
-	return Math.floor(Math.random() * (max - min + 1)) + min;
-}
 
 const maxHeight = 20;
 const minHeight = -20;
