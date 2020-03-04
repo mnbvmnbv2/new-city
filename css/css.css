@@ -12,7 +12,7 @@ body {
 	flex-wrap: wrap;
 	position: fixed;
 }
-#game {
+#canvas {
 	z-index: 6;
 	position: fixed;
 }
@@ -30,7 +30,7 @@ body {
 	background-color: rgba(0, 0, 255, 0.5) !important;
 }
 
-#info {
+#footer {
 	background-color: rgb(53, 53, 53);
 	position: fixed;
 	font-size: 20px;
@@ -47,6 +47,6 @@ button {
 	color: black !important;
 }
 
-table{
+table {
 	text-align: center;
 }

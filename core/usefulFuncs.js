@@ -14,25 +14,3 @@ function shuffle(a) {
 	}
 	return a;
 }
-
-//---------------ON-ALL--------------------------------
-
-function onAll(fun, arg) {
-	for (let i = 0; i < mapWidth * mapHeight; i++) {
-		findTile(i)[fun](arg);
-	}
-}
-
-function inverseOnAll(fun, arg) {
-	for (let i = mapWidth * mapHeight - 1; i > -1; i--) {
-		findTile(i)[fun](arg);
-	}
-}
-
-//---------------------findtile----------------------------
-
-function findTile(tile) {
-	let i = Math.floor(tile / mapWidth);
-	let j = tile - mapWidth * i;
-	return map[i][j];
-}
