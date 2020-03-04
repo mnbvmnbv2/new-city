@@ -1,32 +1,48 @@
 class TileClass {
-	constructor(tileNumber, height, y, x) {
+	constructor(map, tileNumber, y, x) {
+		this.map = map;
 		this.tileNumber = tileNumber;
-		this.height = height;
 		this.y = y;
 		this.x = x;
 		this.name = 'OK';
 
+		
+		this.height;
 		this.landRegion;
 		this.seaRegion;
 		this.weather;
 		this.temperature;
 		this.resource;
-
+	}
+	generateLandscape(){
 		this.fixHeight();
+		this.setType();
 		this.setClimate();
 		this.setWeather();
 		this.setTemperature();
 		this.setResource();
 	}
 	fixHeight() {
-		if (this.height > maxHeight) {
-			this.height = maxHeight;
-		} else if (this.height < minHeight) {
-			this.height = minHeight;
+
+		if(this.x == 0 && this.y == 0){
+			this.height = 0;
 		}
 
+
+
+
+
+		//compares left
+		if(this.x > 0){
+			if (this.height < this.west().height - newHeightRange) {
+				this.height = this.west().height - newHeightRange;
+			} else if (this.height > this.west().height + newHeightRange) {
+				this.height = this.west().height + newHeightRange;
+			}
+		}
+
+		//compares to line over
 		if (this.y > 0) {
-			//compares to line over
 			if (this.height < this.north().height - heightToOver) {
 				this.height = this.north().height - heightToOver;
 			} else if (this.height > this.north().height + heightToOver) {
@@ -34,6 +50,13 @@ class TileClass {
 			}
 		}
 
+		if (this.height > maxHeight) {
+			this.height = maxHeight;
+		} else if (this.height < minHeight) {
+			this.height = minHeight;
+		}
+	}
+	setType() {
 		if (this.height == 0 || this.height == 1) {
 			this.type = 'sand';
 		} else if (this.height >= 15) {
@@ -60,28 +83,28 @@ class TileClass {
 	}
 	north() {
 		try {
-			return map[this.y - 1][this.x];
+			return this.map.map[this.y - 1][this.x];
 		} catch (err) {
 			return false;
 		}
 	}
 	west() {
 		try {
-			return map[this.y][this.x - 1];
+			return this.map.map[this.y][this.x - 1];
 		} catch (err) {
 			return false;
 		}
 	}
 	east() {
 		try {
-			return map[this.y][this.x + 1];
+			return this.map.map[this.y][this.x + 1];
 		} catch (err) {
 			return false;
 		}
 	}
 	south() {
 		try {
-			return map[this.y + 1][this.x];
+			return this.map.map[this.y + 1][this.x];
 		} catch (err) {
 			return false;
 		}
@@ -122,11 +145,11 @@ class TileClass {
 			//if tile has region
 			if (tile[regionType] != 0 && tile[regionType] != undefined) {
 				//chance for this to join its region
-				if (Math.random() < regionJoinChance + (regionJoinMinimum - map[regionType][tile[regionType] - 1].length / 10)) {
+				if (Math.random() < regionJoinChance + (regionJoinMinimum - this.map[regionType][tile[regionType] - 1].length / 10)) {
 					//this gets its region
 					this[regionType] = tile[regionType];
 					//join the region array
-					map[regionType][tile[regionType] - 1].push(this); 
+					this.map[regionType][tile[regionType] - 1].push(this); 
 				}
 			}
 		} catch (err) {}

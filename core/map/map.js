@@ -55,23 +55,15 @@ class Map {
 			//i per line
 			let line = [];
 			for (var j = 0; j < this.width; j++) {
-				if (j == 0) {
-					//first tile on new line
-					let o = new TileClass(tileCounter, randInt(-newHeightRange / 2, newHeightRange / 2), i, j);
-					line.push(o);
-				} else {
-					let o = new TileClass(
-						tileCounter,
-						line[j - 1].height + randInt(-newHeightRange / 2, newHeightRange / 2),
-						i,
-						j
-					);
-					line.push(o);
-				}
+				let o = new TileClass(this, tileCounter, i - Math.floor(this.height/2), j - Math.floor(this.width/2));
+				line.push(o);
 				tileCounter++;
 			}
 			this.map.push(line);
 		}
+
+		//starts mapgenerating at 0.0 (in the middle of the screen)
+		//this.map.map[0][0].generateLandscape();
 	}
 	onAll(func, arg) {
 		for (let i = 0; i < this.width * this.height; i++) {

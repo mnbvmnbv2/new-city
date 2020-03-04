@@ -1,3 +1,7 @@
+//-------------worldgen-----------
+
+const worldgen = 'random'; //random / even
+
 //-----------regions-----------
 const regionJoinChance = 0.92;
 const regionJoinMinimum = 0.44;
@@ -23,8 +27,8 @@ if (screen.width >= 1850) {
 const maxHeight = 20;
 const minHeight = -20;
 const heightRange = maxHeight - minHeight;
-const newHeightRange = 12; // 10 => (-5) - 5
-const heightToOver = 7;
+const newHeightRange = 5; // 5 => (-5) - 5
+const heightToOver = 5;
 
 //----------------wind----------------------
 
