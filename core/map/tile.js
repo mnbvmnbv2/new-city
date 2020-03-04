@@ -6,6 +6,12 @@ class TileClass {
 		this.x = x;
 		this.name = 'OK';
 
+		this.landRegion;
+		this.seaRegion;
+		this.weather;
+		this.temperature;
+		this.resource;
+
 		this.fixHeight();
 		this.setClimate();
 		this.setWeather();
@@ -111,82 +117,47 @@ class TileClass {
 			} catch (err) {}
 		}
 	}
-	checkRegionTo(tile) {
+	checkRegionTo(tile,regionType) {
 		try {
-			if (tile.region != 0 && tile.region != undefined) {
-				//if tile has region
-				if (Math.random() < regionJoinChance + (regionJoinMinimum - regions[tile.region - 1].length / 10)) {
-					//chance for this to join its region
-					this.region = tile.region; //this gets its region
-					regions[tile.region - 1].push(this); //join the region array
+			//if tile has region
+			if (tile[regionType] != 0 && tile[regionType] != undefined) {
+				//chance for this to join its region
+				if (Math.random() < regionJoinChance + (regionJoinMinimum - map[regionType][tile[regionType] - 1].length / 10)) {
+					//this gets its region
+					this[regionType] = tile[regionType];
+					//join the region array
+					map[regionType][tile[regionType] - 1].push(this); 
 				}
 			}
 		} catch (err) {}
 	}
-	setRegion() {
+	setRegion(regionType) {
 		try {
-			if (this.height < 0) {
-				this.region = 0;
+			if (regionType = 'seaRegion' && this.height >= 0) {
+				this[regionType] = 0;
+			} else if(regionType = 'landRegion' && this.height < 0) {
+				this[regionType] = 0;
 			}
-			if (this.region == undefined) {
-				if (this.height >= 0) {
+			if (this[regionType] == undefined) {
+				//if (this.height >= 0) {
 					//tests if the tiles around has a region in a random order
 					let aroundTiles = [ this.north(), this.west(), this.east(), this.south() ];
 					shuffle(aroundTiles);
-					aroundTiles.forEach((element) => this.checkRegionTo(element));
+					aroundTiles.forEach((element) => this.checkRegionTo(element,regionType));
 
 					//if this tile did not get a region, then it creates a new one
-					if (this.region == undefined) {
-						numberOfRegions++;
-						regions.push([]);
-						this.region = numberOfRegions;
-						regions[map[this.y][this.x].region - 1].push(this); //join the region array
+					if (this[regionType] == undefined) {
+						//makes a new array for the tiles of the new region
+						map[regionType].push([]);
+						//sets the tile region as the new one
+						this[regionType] = mpa[regionType].length - 1;
+						//the tile gets added to the region array
+						map[regionType][map[this.y][this.x][regionType] - 1].push(this); 
 					}
 
 					//makes the tiles around do the regionCheck
-					aroundTiles.forEach((element) => element.setRegion());
-				}
-			}
-		} catch (err) {}
-	}
-	checkSeaRegionTo(tile) {
-		try {
-			if (tile.seaRegion != 0 && tile.seaRegion != undefined) {
-				//if tile has region
-				if (
-					Math.random() <
-					regionJoinChance + (regionJoinMinimum - seaRegions[tile.seaRegion - 1].length / 10)
-				) {
-					//chance for this to join its region
-					this.seaRegion = tile.seaRegion; //this gets its region
-					seaRegions[tile.seaRegion - 1].push(this); //join the region array
-				}
-			}
-		} catch (err) {}
-	}
-	setSeaRegion() {
-		try {
-			if (this.height >= 0) {
-				this.seaRegion = 0;
-			}
-			if (this.seaRegion == undefined) {
-				if (this.height < 0) {
-					//tests if the tiles around has a region in a random order
-					let aroundTiles = [ this.north(), this.west(), this.east(), this.south() ];
-					shuffle(aroundTiles);
-					aroundTiles.forEach((element) => this.checkSeaRegionTo(element));
-
-					//if this tile did not get a region, then it creates a new one
-					if (this.seaRegion == undefined) {
-						numberOfSeaRegions++;
-						seaRegions.push([]);
-						this.seaRegion = numberOfSeaRegions;
-						seaRegions[map[this.y][this.x].seaRegion - 1].push(this); //join the region array
-					}
-
-					//makes the tiles around do the regionCheck
-					aroundTiles.forEach((element) => element.setSeaRegion());
-				}
+					aroundTiles.forEach((element) => element.setRegion(regionType));
+				//}
 			}
 		} catch (err) {}
 	}

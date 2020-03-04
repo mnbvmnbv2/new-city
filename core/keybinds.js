@@ -4,25 +4,25 @@ document.addEventListener('keydown', keyClick);
 
 function keyClick(e) {
 	if (e.code == 'KeyA') {
-		for (let i = 0; i < mapWidth * mapHeight; i++) {
-			findTile(i).changeHeight();
+		for (let i = 0; i < map.width * map.height; i++) {
+			map.findTile(i).changeHeight();
 		}
 	} else if (e.code == 'KeyQ') {
-		colorModes.none();
+		map.mapMode('none');
 	} else if (e.code == 'KeyW') {
-		mapMode('height');
+		map.mapMode('height');
 	} else if (e.code == 'KeyE') {
-		mapMode('region');
+		map.mapMode('region');
 	} else if (e.code == 'KeyR') {
-		mapMode('resource');
+		map.mapMode('resource');
 	} else if (e.code == 'KeyT') {
-		mapMode('temperature');
+		map.mapMode('temperature');
 	} else if (e.code == 'KeyY') {
-		mapMode('climate');
+		map.mapMode('climate');
 	} else if (e.code == 'KeyU') {
-		mapMode('weather');
+		map.mapMode('weather');
 	} else if (e.code == 'KeyI') {
-		mapMode('seaRegion');
+		map.mapMode('seaRegion');
 	} else if (e.code == 'Escape') {
 		openMenu();
 	}

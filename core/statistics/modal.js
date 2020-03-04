@@ -18,13 +18,3 @@ window.onclick = function(event) {
 		modal.style.display = 'none';
 	}
 };
-
-//---------------Tileclick---------------
-
-let activeTile = 0;
-
-function selected(e) {
-	console.log(findTile(e.target.id));
-	activeTile = e.target.id;
-	openInfo();
-}

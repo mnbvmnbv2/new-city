@@ -21,11 +21,11 @@ class InfoTab {
 	}
 }
 
-const helpfulEl = document.getElementById('helpful');
+const statisticsEl = document.getElementById('statistics');
 
-let home = new InfoTab('Home', 'blabla text');
-let other = new InfoTab('Other', '123456');
-home.addBtn('toOther', function() {
+let home = new InfoTab('Home', 'this is the home screen');
+let other = new InfoTab('Other modal', 'here there can be more info');
+home.addBtn('to other modal', function() {
 	other.print('normal');
 });
 other.addBtn('back', function() {
@@ -38,7 +38,7 @@ let tabs = [ home, other ];
 
 function helpness() {
 	//helpfulEl.innerHTML = findTile(activeTile).toString();
-	helpfulEl.innerHTML = `${player.toString()}`;
+	statisticsEl.innerHTML = `${player.toString()}`;
 }
 
 function openInfo() {
@@ -66,4 +66,14 @@ function openMenu() {
 		menuActive = false;
 		modal.style.display = 'none';
 	}
+}
+
+//---------------Tileclick---------------
+
+let activeTile = 0;
+
+function selected(e) {
+	console.log(map.findTile(e.target.id));
+	activeTile = e.target.id;
+	openInfo();
 }

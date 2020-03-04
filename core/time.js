@@ -1,26 +1,25 @@
-let currentDir = 'west';
-
 function timeTick() {
-	for (let i = 0; i < mapWidth * mapHeight; i++) {
-		findTile(i).changeTemperature();
-	}
+	map.onAll('changeTemperature',);
+	map.drawGame();
 
 	//------------eco-----------
+	
 	for (building of player.buildings) {
 		player.gold += 0.1;
 	}
+	
 	//-----------------
 
 	helpness();
 
 	if (currentDir != 'none') {
-		wind(currentDir);
+		map.wind(currentDir);
 	}
 
-	if (activeMode == 'weather') {
-		mapMode('weather');
-	} else if (activeMode == 'temperature') {
-		mapMode('temperature');
+	if (map.activeMode == 'weather') {
+		map.mapMode('weather');
+	} else if (map.activeMode == 'temperature') {
+		map.mapMode('temperature');
 	}
 	setTimeout(timeTick, 1000);
 }

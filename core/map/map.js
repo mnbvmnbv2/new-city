@@ -10,10 +10,10 @@ canvasEl.height = `${boxSize * mapHeight}`;
 overlayEl.style.width = `${boxSize * mapWidth}px`;
 overlayEl.style.height = `${boxSize * mapHeight}px`;
 
-const infoEl = document.getElementById('info');
-infoEl.style.width = `${boxSize * mapWidth}px`;
-infoEl.style.marginTop = `${boxSize * mapHeight}px`;
-infoEl.style.height = `100px`;
+const footerEl = document.getElementById('footer');
+footerEl.style.width = `${boxSize * mapWidth}px`;
+footerEl.style.marginTop = `${boxSize * mapHeight}px`;
+footerEl.style.height = `100px`;
 
 //-------------------------------------------------
 
@@ -31,13 +31,10 @@ class Map {
 
 		this.randomRegionColors = Math.floor(Math.random() * 9) + 2;
 
-		this.numberOfLandRegions = 0;
-		this.landRegions = [];
-		this.numberOfSeaRegions = 0;
-		this.seaRegions = [];
+		this.landRegion = []; //(regions)
+		this.seaRegion = []; //(regions)
 
-		this.createLandRegions();
-		this.createSeaRegions();
+		this.createRegions();
 
 		this.activeMode = 'none';
 	}
@@ -76,15 +73,14 @@ class Map {
 			this.map.push(line);
 		}
 	}
-	onAll(fun, arg) {
+	onAll(func, arg) {
 		for (let i = 0; i < this.width * this.height; i++) {
-			this.findTile(i)[fun](arg);
+			this.findTile(i)[func](arg);
 		}
 	}
-
-	inverseOnAll(fun, arg) {
+	inverseOnAll(func, arg) {
 		for (let i = this.width * this.height - 1; i > -1; i--) {
-			this.findTile(i)[fun](arg);
+			this.findTile(i)[func](arg);
 		}
 	}
 	findTile(tile) {
@@ -92,27 +88,26 @@ class Map {
 		let j = tile - this.width * i;
 		return this.map[i][j];
 	}
-
 	createRegions() {
-		for (let i = 0; i < this.height * this.width; i++) {
-			this.findTile(i).setLandRegion();
-			this.findTile(i).setSeaRegion();
-		}
+		this.onAll('setRegion','landRegion');
+		this.onAll('setRegion','seaRegion');
 	}
 	mapMode(mode) {
 		for (var i = 0; i < this.height * this.width; i++) {
-			this.overlayblocks[i].innerHTML = this.findTile(i)[mode];
+			try{
+				//tries to write the value of the attribute being checked in each overlayblock
+				this.overlayblocks[i].innerHTML = this.findTile(i)[mode];
+			} catch (err) {
+				//if the value does'nt exist, then write nothing (for mapmode none)
+				this.overlayblocks[i].innerHTML = '';
+			}
 			this.overlayblocks[i].style.background = this.colorModes[mode](this.findTile(i)[mode]);
 		}
 		this.activeMode = mode;
 	}
 	colorModes(mode) {
 		if (mode == 'none') {
-			for (var i = 0; i < this.height * this.width; i++) {
-				this.overlayblocks[i].innerHTML = '';
-				this.overlayblocks[i].style.background = 'rgba(0,0,0,0)';
-			}
-			activeMode = 'none';
+			return `rgba(0,0,0,0)`;
 		} else if (mode == 'height') {
 			if (height >= 0) {
 				return `rgba(90,60,20,${height / maxHeight})`;
@@ -153,106 +148,63 @@ class Map {
 			return `rgba(0,0,0,0) url(bilder/resources/${resource}.png) no-repeat center`;
 		}
 	}
+	wind(direction) {
+		if (direction == 'north') {
+			this.onAll('wind', 'north');
+			for (let tile of this.map[this.height - 1]) {
+				if (Math.random() < windChance) {
+					tile.setWeather();
+				}
+			}
+		} else if (direction == 'west') {
+			this.onAll('wind', 'west');
+			for (let line of this.map) {
+				if (Math.random() < windChance) {
+					line[mapWidth - 1].setWeather();
+				}
+			}
+		} else if (direction == 'east') {
+			this.inverseOnAll('wind', 'east');
+			for (let line of this.map) {
+				if (Math.random() < windChance) {
+					line[0].setWeather();
+				}
+			}
+		} else if (direction == 'south') {
+			this.inverseOnAll('wind', 'south');
+			for (let tile of this.map[0]) {
+				if (Math.random() < windChance) {
+					tile.setWeather();
+				}
+			}
+		}
+	}
+	drawGame() {
+		let x = 0;
+		let y = -boxSize * 2 / 7;
+		
+		let tilePic;
+
+		let ctx = canvasEl.getContext('2d');
+
+		for (var i = 0; i < this.map.length; i++) {
+			for (var j = 0; j < this.map[i].length; j++) {
+				tilePic = document.createElement('img');
+
+				tilePic.src = `pictures/tiles/${this.map[i][j].type}/0.png`;
+
+				ctx.drawImage(tilePic, x, y * 7 / 5, boxSize, boxSize * 7 / 5);
+
+				x += boxSize;
+				if (x >= mapWidth * boxSize) {
+					x = 0;
+					y += boxSize * 5 / 7;
+				}
+			}
+		}
+	}
 }
 
 let map = new Map(mapWidth, mapHeight);
-
-//-------------WEATHER-------------------
-
-const Weather = {
-	fair   : { chance: 10 },
-	sunny  : { chance: 5 },
-	cloudy : { chance: 5 },
-	windy  : { chance: 3 },
-	storm  : { chance: 1 },
-	hurric : { chance: 0.5 }
-};
-
-//-------------RESOURCES----------------------
-
-const Resources = {
-	sea  : {
-		fish   : { chance: 10 },
-		whale  : { chance: 2 },
-		sharks : { chance: 0.5 }
-	},
-
-	land : {
-		gold   : { chance: 0.1 },
-		iron   : { chance: 0.5 },
-		copper : { chance: 0.3 },
-		cattle : { chance: 2 },
-		wheat  : { chance: 3 }
-	}
-};
-
-//------------WIND--------------------------
-
-function wind(direction) {
-	if (direction == 'north') {
-		onAll('wind', 'north');
-		for (tile of map[mapHeight - 1]) {
-			if (Math.random() < windChance) {
-				tile.setWeather();
-			}
-		}
-	} else if (direction == 'west') {
-		onAll('wind', 'west');
-		for (line of map) {
-			if (Math.random() < windChance) {
-				line[mapWidth - 1].setWeather();
-			}
-		}
-	} else if (direction == 'east') {
-		inverseOnAll('wind', 'east');
-		for (line of map) {
-			if (Math.random() < windChance) {
-				line[0].setWeather();
-			}
-		}
-	} else if (direction == 'south') {
-		inverseOnAll('wind', 'south');
-		for (tile of map[0]) {
-			if (Math.random() < windChance) {
-				tile.setWeather();
-			}
-		}
-	}
-}
-
-//const mapTypeChances = [ 1, 2 ];
-// const mapTotalChance = mapTypeChances.reduce();
-
-//--------------------TILES-------------------------------
-
-let x = 0;
-let y = 0;
-
-let tileNumber = 0;
-let tilePic;
-
-drawGame();
-function drawGame() {
-	let ctx = gameEl.getContext('2d');
-
-	x = 0;
-	y = -boxSize * 2 / 7;
-
-	for (var i = 0; i < map.length; i++) {
-		for (var j = 0; j < map[i].length; j++) {
-			tilePic = document.createElement('img');
-
-			tilePic.src = `pictures/tiles/${map[i][j].type}/0.png`;
-
-			ctx.drawImage(tilePic, x, y * 7 / 5, boxSize, boxSize * 7 / 5);
-
-			x += boxSize;
-			if (x >= mapWidth * boxSize) {
-				x = 0;
-				y += boxSize * 5 / 7;
-			}
-		}
-	}
-	setTimeout(drawGame, 300);
-	//requestAnimationFrame(drawGame);
-}
+map.drawGame();
+map.drawGame();
