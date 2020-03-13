@@ -1,13 +1,13 @@
 function timeTick() {
-	map.onAll('changeTemperature',);
+	map.onAll('changeTemperature');
 	map.drawGame();
 
 	//------------eco-----------
-	
+
 	for (building of player.buildings) {
 		player.gold += 0.1;
 	}
-	
+
 	//-----------------
 
 	helpness();

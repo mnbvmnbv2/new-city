@@ -55,7 +55,12 @@ class Map {
 			//i per line
 			let line = [];
 			for (var j = 0; j < this.width; j++) {
-				let o = new TileClass(this, tileCounter, i - Math.floor(this.height/2), j - Math.floor(this.width/2));
+				let o = new TileClass(
+					this,
+					tileCounter,
+					i - Math.floor(this.height / 2),
+					j - Math.floor(this.width / 2)
+				);
 				line.push(o);
 				tileCounter++;
 			}
@@ -81,12 +86,12 @@ class Map {
 		return this.map[i][j];
 	}
 	createRegions() {
-		this.onAll('setRegion','landRegion');
-		this.onAll('setRegion','seaRegion');
+		this.onAll('setRegion', 'landRegion');
+		this.onAll('setRegion', 'seaRegion');
 	}
 	mapMode(mode) {
 		for (var i = 0; i < this.height * this.width; i++) {
-			try{
+			try {
 				//tries to write the value of the attribute being checked in each overlayblock
 				this.overlayblocks[i].innerHTML = this.findTile(i)[mode];
 			} catch (err) {
@@ -174,7 +179,7 @@ class Map {
 	drawGame() {
 		let x = 0;
 		let y = -boxSize * 2 / 7;
-		
+
 		let tilePic;
 
 		let ctx = canvasEl.getContext('2d');

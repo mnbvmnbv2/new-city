@@ -6,7 +6,6 @@ class TileClass {
 		this.x = x;
 		this.name = 'OK';
 
-		
 		this.height;
 		this.landRegion;
 		this.seaRegion;
@@ -14,7 +13,7 @@ class TileClass {
 		this.temperature;
 		this.resource;
 	}
-	generateLandscape(){
+	generateLandscape() {
 		this.fixHeight();
 		this.setType();
 		this.setClimate();
@@ -23,17 +22,12 @@ class TileClass {
 		this.setResource();
 	}
 	fixHeight() {
-
-		if(this.x == 0 && this.y == 0){
+		if (this.x == 0 && this.y == 0) {
 			this.height = 0;
 		}
 
-
-
-
-
 		//compares left
-		if(this.x > 0){
+		if (this.x > 0) {
 			if (this.height < this.west().height - newHeightRange) {
 				this.height = this.west().height - newHeightRange;
 			} else if (this.height > this.west().height + newHeightRange) {
@@ -140,46 +134,49 @@ class TileClass {
 			} catch (err) {}
 		}
 	}
-	checkRegionTo(tile,regionType) {
+	checkRegionTo(tile, regionType) {
 		try {
 			//if tile has region
 			if (tile[regionType] != 0 && tile[regionType] != undefined) {
 				//chance for this to join its region
-				if (Math.random() < regionJoinChance + (regionJoinMinimum - this.map[regionType][tile[regionType] - 1].length / 10)) {
+				if (
+					Math.random() <
+					regionJoinChance + (regionJoinMinimum - this.map[regionType][tile[regionType] - 1].length / 10)
+				) {
 					//this gets its region
 					this[regionType] = tile[regionType];
 					//join the region array
-					this.map[regionType][tile[regionType] - 1].push(this); 
+					this.map[regionType][tile[regionType] - 1].push(this);
 				}
 			}
 		} catch (err) {}
 	}
 	setRegion(regionType) {
 		try {
-			if (regionType = 'seaRegion' && this.height >= 0) {
+			if ((regionType = 'seaRegion' && this.height >= 0)) {
 				this[regionType] = 0;
-			} else if(regionType = 'landRegion' && this.height < 0) {
+			} else if ((regionType = 'landRegion' && this.height < 0)) {
 				this[regionType] = 0;
 			}
 			if (this[regionType] == undefined) {
 				//if (this.height >= 0) {
-					//tests if the tiles around has a region in a random order
-					let aroundTiles = [ this.north(), this.west(), this.east(), this.south() ];
-					shuffle(aroundTiles);
-					aroundTiles.forEach((element) => this.checkRegionTo(element,regionType));
+				//tests if the tiles around has a region in a random order
+				let aroundTiles = [ this.north(), this.west(), this.east(), this.south() ];
+				shuffle(aroundTiles);
+				aroundTiles.forEach((element) => this.checkRegionTo(element, regionType));
 
-					//if this tile did not get a region, then it creates a new one
-					if (this[regionType] == undefined) {
-						//makes a new array for the tiles of the new region
-						map[regionType].push([]);
-						//sets the tile region as the new one
-						this[regionType] = mpa[regionType].length - 1;
-						//the tile gets added to the region array
-						map[regionType][map[this.y][this.x][regionType] - 1].push(this); 
-					}
+				//if this tile did not get a region, then it creates a new one
+				if (this[regionType] == undefined) {
+					//makes a new array for the tiles of the new region
+					map[regionType].push([]);
+					//sets the tile region as the new one
+					this[regionType] = mpa[regionType].length - 1;
+					//the tile gets added to the region array
+					map[regionType][map[this.y][this.x][regionType] - 1].push(this);
+				}
 
-					//makes the tiles around do the regionCheck
-					aroundTiles.forEach((element) => element.setRegion(regionType));
+				//makes the tiles around do the regionCheck
+				aroundTiles.forEach((element) => element.setRegion(regionType));
 				//}
 			}
 		} catch (err) {}
