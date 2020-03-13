@@ -23,6 +23,10 @@ class Map {
 		this.width = width;
 
 		this.map = [];
+		this.centre = {
+			y : Math.floor(this.height/2),
+			x : Math.floor(this.width/2)
+		};
 
 		this.createOverlay();
 		this.overlayblocks = document.getElementsByClassName('overlayBlock');
@@ -34,11 +38,13 @@ class Map {
 		this.landRegion = []; //(regions)
 		this.seaRegion = []; //(regions)
 
-		this.createRegions();
+		//this.createRegions();
 
 		this.activeMode = 'none';
 	}
 	createOverlay() {
+		//resets the overlay if there is any blocks left
+		overlayEl.innerHTML = '';
 		for (var i = 0; i < this.width * this.height; i++) {
 			var clickable = document.createElement('div');
 			clickable.classList.add('overlayBlock');
@@ -55,17 +61,22 @@ class Map {
 			//i per line
 			let line = [];
 			for (var j = 0; j < this.width; j++) {
-				let o = new TileClass(this, tileCounter, i - Math.floor(this.height/2), j - Math.floor(this.width/2));
-				line.push(o);
+				let tile = new TileClass(this, tileCounter, -i + this.centre.y, j - this.centre.x);
+				line.push(tile);
 				tileCounter++;
 			}
 			this.map.push(line);
 		}
 
 		//starts mapgenerating at 0.0 (in the middle of the screen)
-		//this.map.map[0][0].generateLandscape();
+		this.map[this.centre.y][this.centre.x].setRegion('landRegion');
 	}
 	onAll(func, arg) {
+		for (let i = 0; i < this.width * this.height; i++) {
+			this.findTile(i)[func](arg);
+		}
+	}
+	onAllStart(func, arg){
 		for (let i = 0; i < this.width * this.height; i++) {
 			this.findTile(i)[func](arg);
 		}
@@ -82,62 +93,66 @@ class Map {
 	}
 	createRegions() {
 		this.onAll('setRegion','landRegion');
-		this.onAll('setRegion','seaRegion');
+		//this.onAll('setRegion','seaRegion');
 	}
 	mapMode(mode) {
 		for (var i = 0; i < this.height * this.width; i++) {
-			try{
-				//tries to write the value of the attribute being checked in each overlayblock
-				this.overlayblocks[i].innerHTML = this.findTile(i)[mode];
-			} catch (err) {
+			if (mode == 'none') {
 				//if the value does'nt exist, then write nothing (for mapmode none)
 				this.overlayblocks[i].innerHTML = '';
+			} else if (mode == 'tileNumber'){
+				this.overlayblocks[i].innerHTML = this.findTile(i).y + "," + this.findTile(i).x;
+			} else {
+				//tries to write the value of the attribute being checked in each overlayblock
+				this.overlayblocks[i].innerHTML = this.findTile(i)[mode];
 			}
-			this.overlayblocks[i].style.background = this.colorModes[mode](this.findTile(i)[mode]);
+			this.overlayblocks[i].style.background = this.colorModes(mode, this.findTile(i));
 		}
 		this.activeMode = mode;
 	}
-	colorModes(mode) {
+	colorModes(mode, tile) {
 		if (mode == 'none') {
 			return `rgba(0,0,0,0)`;
 		} else if (mode == 'height') {
-			if (height >= 0) {
-				return `rgba(90,60,20,${height / maxHeight})`;
+			if (tile.height >= 0) {
+				return `rgba(90,60,20,${tile.height / maxHeight})`;
 			} else {
-				return `rgba(45,20,90,${height / minHeight})`;
+				return `rgba(45,20,90,${tile.height / minHeight})`;
 			}
 		} else if (mode == 'landRegion') {
 			let possibles = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' ];
 			let color = '#';
-			let offset = randomRegionColors;
+			let offset = this.randomRegionColors;
 			for (var i = 0; i < 6; i++) {
-				color += possibles[(region + offset * i + ((region * offset) % 11) * i) % possibles.length]; //hashing?
+				color += possibles[(tile.landRegion + offset * i + ((tile.landRegion * offset) % 11) * i) % possibles.length]; //hashing?
 			}
-			if (region == 0) {
+			if (tile.landRegion == 0) {
 				return 'rgba(0,0,0,0)';
 			}
 			return color;
 		} else if (mode == 'seaRegion') {
-			if (seaRegion == 0) {
+			if (tile.seaRegion == 0) {
 				return 'rgba(0,0,0,0)';
 			}
-			return `hsla(${seaRegion * 49},${(seaRegion * 7) % 30 + 60}%,${(seaRegion * 17) % 30 + 35}%,1)`;
+			return `hsla(${tile.seaRegion * 49},${(tile.seaRegion * 7) % 30 + 60}%,${(tile.seaRegion * 17) % 30 + 35}%,1)`;
 		} else if (mode == 'climate') {
-			if (climate < 0) {
-				return `rgba(0,0,150,${climate / minClimate})`;
+			if (tile.climate < 0) {
+				return `rgba(0,0,150,${tile.climate / minClimate})`;
 			} else {
-				return `rgba(200,0,0,${climate / maxClimate})`;
+				return `rgba(200,0,0,${tile.climate / maxClimate})`;
 			}
 		} else if (mode == 'temperature') {
-			if (temperature < 0) {
-				return `rgba(0,0,150,${temperature / minTemperature})`;
+			if (tile.temperature < 0) {
+				return `rgba(0,0,150,${tile.temperature / minTemperature})`;
 			} else {
-				return `rgba(200,0,0,${temperature / maxTemperature})`;
+				return `rgba(200,0,0,${tile.temperature / maxTemperature})`;
 			}
 		} else if (mode == 'weather') {
-			return `hsla(${Object.keys(Weather).indexOf(weather) * 82},85%,50%,0.2)`;
+			return `hsla(${Object.keys(Weather).indexOf(tile.weather) * 82},85%,50%,0.2)`;
 		} else if (mode == 'resource') {
-			return `rgba(0,0,0,0) url(bilder/resources/${resource}.png) no-repeat center`;
+			return `rgba(0,0,0,0) url(bilder/resources/${tile.resource}.png) no-repeat center`;
+		} else if (mode == 'tileNumber') {
+			return `rgba(0,0,0,0)`;
 		}
 	}
 	wind(direction) {

@@ -7,7 +7,8 @@ class TileClass {
 		this.name = 'OK';
 
 		
-		this.height;
+		this.height = 0;
+		this.setType();
 		this.landRegion;
 		this.seaRegion;
 		this.weather;
@@ -23,14 +24,9 @@ class TileClass {
 		this.setResource();
 	}
 	fixHeight() {
-
 		if(this.x == 0 && this.y == 0){
 			this.height = 0;
 		}
-
-
-
-
 
 		//compares left
 		if(this.x > 0){
@@ -83,28 +79,28 @@ class TileClass {
 	}
 	north() {
 		try {
-			return this.map.map[this.y - 1][this.x];
+			return this.map.map[ - this.y + this.map.centre.y - 1][this.x + this.map.centre.x];
 		} catch (err) {
 			return false;
 		}
 	}
 	west() {
 		try {
-			return this.map.map[this.y][this.x - 1];
+			return this.map.map[ - this.y + this.map.centre.y][this.x + this.map.centre.x - 1];
 		} catch (err) {
 			return false;
 		}
 	}
 	east() {
 		try {
-			return this.map.map[this.y][this.x + 1];
+			return this.map.map[ - this.y + this.map.centre.y][this.x + this.map.centre.x + 1];
 		} catch (err) {
 			return false;
 		}
 	}
 	south() {
 		try {
-			return this.map.map[this.y + 1][this.x];
+			return this.map.map[ - this.y + this.map.centre.y + 1][this.x + this.map.centre.x];
 		} catch (err) {
 			return false;
 		}
@@ -151,14 +147,16 @@ class TileClass {
 					//join the region array
 					this.map[regionType][tile[regionType] - 1].push(this); 
 				}
+			} else {
+
 			}
 		} catch (err) {}
 	}
 	setRegion(regionType) {
 		try {
-			if (regionType = 'seaRegion' && this.height >= 0) {
+			if (regionType == 'seaRegion' && this.height >= 0) {
 				this[regionType] = 0;
-			} else if(regionType = 'landRegion' && this.height < 0) {
+			} else if(regionType == 'landRegion' && this.height < 0) {
 				this[regionType] = 0;
 			}
 			if (this[regionType] == undefined) {
@@ -171,11 +169,13 @@ class TileClass {
 					//if this tile did not get a region, then it creates a new one
 					if (this[regionType] == undefined) {
 						//makes a new array for the tiles of the new region
-						map[regionType].push([]);
+						console.log(regionType)
+						this.map[regionType].push(['as']);
+						console.log(this.map[regionType])
 						//sets the tile region as the new one
-						this[regionType] = mpa[regionType].length - 1;
+						this[regionType] = this.map[regionType].length - 1;
 						//the tile gets added to the region array
-						map[regionType][map[this.y][this.x][regionType] - 1].push(this); 
+						this.map[regionType][this.map[this.y][this.x][regionType] - 1].push(this); 
 					}
 
 					//makes the tiles around do the regionCheck

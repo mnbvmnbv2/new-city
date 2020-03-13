@@ -12,7 +12,7 @@ function keyClick(e) {
 	} else if (e.code == 'KeyW') {
 		map.mapMode('height');
 	} else if (e.code == 'KeyE') {
-		map.mapMode('region');
+		map.mapMode('landRegion');
 	} else if (e.code == 'KeyR') {
 		map.mapMode('resource');
 	} else if (e.code == 'KeyT') {
@@ -23,6 +23,8 @@ function keyClick(e) {
 		map.mapMode('weather');
 	} else if (e.code == 'KeyI') {
 		map.mapMode('seaRegion');
+	} else if (e.code == 'KeyO') {
+		map.mapMode('tileNumber');
 	} else if (e.code == 'Escape') {
 		openMenu();
 	}
