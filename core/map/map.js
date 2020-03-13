@@ -189,7 +189,7 @@ class Map {
 	drawGame() {
 		let x = 0;
 		let y = -boxSize * 2 / 7;
-		
+
 		let tilePic;
 
 		let ctx = canvasEl.getContext('2d');
