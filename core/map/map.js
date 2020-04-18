@@ -24,8 +24,8 @@ class Map {
 
 		this.map = [];
 		this.centre = {
-			y : Math.floor(this.height/2),
-			x : Math.floor(this.width/2)
+			y : Math.floor(this.height / 2),
+			x : Math.floor(this.width / 2)
 		};
 
 		this.createOverlay();
@@ -35,12 +35,46 @@ class Map {
 
 		this.randomRegionColors = Math.floor(Math.random() * 9) + 2;
 
-		this.landRegion = []; //(regions)
-		this.seaRegion = []; //(regions)
+		//this.region = []; //for constructing regions
+		//this.landRegion = []; //(regions)
+		//this.seaRegion = []; //(regions)
 
 		//this.createRegions();
 
 		this.activeMode = 'none';
+
+		this.generateMap();
+	}
+	generateMap() {
+		//starts mapgenerating at 0.0 (in the middle of the screen)
+		//first creates a regionmap
+		this.map[this.centre.y][this.centre.x].setRegion('region');
+		//then randomheight all
+
+		//radnomheight
+		this.onAll('randomHeight', -1, 1);
+
+		//makes the regions into land and sea regions
+		this.regionFixHeight();
+	}
+	regionFixHeight() {
+		for (let region of this.region) {
+			let regionAverageHeight = 0;
+			for (let tile of region) {
+				regionAverageHeight += tile.height;
+			}
+			if (regionAverageHeight > 0) {
+				for (let tile of region) {
+					tile.height += 2;
+					tile.setType();
+				}
+			} else if (regionAverageHeight < 0) {
+				for (let tile of region) {
+					tile.height -= 2;
+					tile.setType();
+				}
+			}
+		}
 	}
 	createOverlay() {
 		//resets the overlay if there is any blocks left
@@ -67,16 +101,13 @@ class Map {
 			}
 			this.map.push(line);
 		}
-
-		//starts mapgenerating at 0.0 (in the middle of the screen)
-		this.map[this.centre.y][this.centre.x].setRegion('landRegion');
 	}
-	onAll(func, arg) {
+	onAll(func) {
 		for (let i = 0; i < this.width * this.height; i++) {
-			this.findTile(i)[func](arg);
+			this.findTile(i)[func](arguments[1], arguments[2], arguments[3]);
 		}
 	}
-	onAllStart(func, arg){
+	onAllStart(func, arg) {
 		for (let i = 0; i < this.width * this.height; i++) {
 			this.findTile(i)[func](arg);
 		}
@@ -92,7 +123,7 @@ class Map {
 		return this.map[i][j];
 	}
 	createRegions() {
-		this.onAll('setRegion','landRegion');
+		this.onAll('setRegion', 'landRegion');
 		//this.onAll('setRegion','seaRegion');
 	}
 	mapMode(mode) {
@@ -100,8 +131,8 @@ class Map {
 			if (mode == 'none') {
 				//if the value does'nt exist, then write nothing (for mapmode none)
 				this.overlayblocks[i].innerHTML = '';
-			} else if (mode == 'tileNumber'){
-				this.overlayblocks[i].innerHTML = this.findTile(i).y + "," + this.findTile(i).x;
+			} else if (mode == 'tileNumber') {
+				this.overlayblocks[i].innerHTML = this.findTile(i).y + ',' + this.findTile(i).x;
 			} else {
 				//tries to write the value of the attribute being checked in each overlayblock
 				this.overlayblocks[i].innerHTML = this.findTile(i)[mode];
@@ -124,7 +155,10 @@ class Map {
 			let color = '#';
 			let offset = this.randomRegionColors;
 			for (var i = 0; i < 6; i++) {
-				color += possibles[(tile.landRegion + offset * i + ((tile.landRegion * offset) % 11) * i) % possibles.length]; //hashing?
+				color +=
+					possibles[
+						(tile.landRegion + offset * i + ((tile.landRegion * offset) % 11) * i) % possibles.length
+					]; //hashing?
 			}
 			if (tile.landRegion == 0) {
 				return 'rgba(0,0,0,0)';
@@ -134,7 +168,8 @@ class Map {
 			if (tile.seaRegion == 0) {
 				return 'rgba(0,0,0,0)';
 			}
-			return `hsla(${tile.seaRegion * 49},${(tile.seaRegion * 7) % 30 + 60}%,${(tile.seaRegion * 17) % 30 + 35}%,1)`;
+			return `hsla(${tile.seaRegion * 49},${(tile.seaRegion * 7) % 30 + 60}%,${(tile.seaRegion * 17) % 30 +
+				35}%,1)`;
 		} else if (mode == 'climate') {
 			if (tile.climate < 0) {
 				return `rgba(0,0,150,${tile.climate / minClimate})`;
@@ -153,6 +188,11 @@ class Map {
 			return `rgba(0,0,0,0) url(bilder/resources/${tile.resource}.png) no-repeat center`;
 		} else if (mode == 'tileNumber') {
 			return `rgba(0,0,0,0)`;
+		} else if (mode == 'region') {
+			if (tile.region == 0) {
+				return 'rgba(0,0,0,0)';
+			}
+			return `hsla(${tile.region * 19},${(tile.region * 11) % 27 + 59}%,${(tile.region * 23) % 30 + 37}%,0.5)`;
 		}
 	}
 	wind(direction) {
@@ -213,5 +253,4 @@ class Map {
 }
 
 let map = new Map(mapWidth, mapHeight);
-map.drawGame();
 map.drawGame();

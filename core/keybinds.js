@@ -27,5 +27,7 @@ function keyClick(e) {
 		map.mapMode('tileNumber');
 	} else if (e.code == 'Escape') {
 		openMenu();
+	} else if (e.code == 'KeyP') {
+		map.mapMode('region');
 	}
 }
