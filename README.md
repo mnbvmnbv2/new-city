@@ -1,2 +1,2 @@
 # NewCity
-[Play](mnbvmnbv2.github.io/NewCity)
+[Play](https://mnbvmnbv2.github.io/NewCity)
