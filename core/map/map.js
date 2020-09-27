@@ -45,17 +45,60 @@ class Map {
 
 		this.generateMap();
 	}
+	centreTile() {
+		return this.findTileCoord(0, 0);
+	}
 	generateMap() {
 		//starts mapgenerating at 0.0 (in the middle of the screen)
 		//first creates a regionmap
-		this.map[this.centre.y][this.centre.x].setRegion('region');
+		//this.map[this.centre.y][this.centre.x].setRegion('region');
 		//then randomheight all
-
-		//radnomheight
-		this.onAll('randomHeight', -1, 1);
-
+		//this.onAll('randomHeight', -1, 1);
 		//makes the regions into land and sea regions
-		this.regionFixHeight();
+		//this.regionFixHeight();
+		//this.createRegion(this.centreTile(), 'region');
+
+		this.createRegion(this.centreTile(), 'region');
+		this.addToRegion('region', 0);
+	}
+	createRegions() {
+		this.onAll('setRegion', 'landRegion');
+		//this.onAll('setRegion','seaRegion');
+	}
+	createRegion(tile, regionType) {
+		tile.setRegion(regionType);
+
+		/*
+		//tests if the tiles around has a region in a random order
+		let aroundTiles = [ this.north(), this.west(), this.east(), this.south() ];
+		shuffle(aroundTiles);
+		aroundTiles.forEach((element) => this.checkRegionTo(element, regionType));
+
+		//if this tile did not get a region, then it creates a new one
+		if (this[regionType] == undefined) {
+			if (this.map[regionType] == undefined) {
+				this.map[regionType] = [];
+			}
+
+			//makes a new array for the tiles of the new region
+			this.map[regionType].push([]);
+			//sets the tile region as the new one
+			this[regionType] = this.map[regionType].length;
+			//the tile gets added to the region array
+			this.map[regionType][this[regionType] - 1].push(this);
+		}
+		//makes the tiles around do the regionCheck
+		aroundTiles.forEach((element) => element.setRegion(regionType));
+		*/
+	}
+	addToRegion(regionType, regionNumber) {
+		console.log(this[regionType][regionNumber]);
+		let adderTile = this[regionType][regionNumber][
+			Math.floor(Math.random() * this[regionType][regionNumber].length)
+		];
+		return adderTile
+			.aroundTiles()
+			[Math.floor(Math.random() * adderTile.aroundTiles.length)].joinRegion(regionType, regionNumber);
 	}
 	regionFixHeight() {
 		for (let region of this.region) {
@@ -122,9 +165,8 @@ class Map {
 		let j = tile - this.width * i;
 		return this.map[i][j];
 	}
-	createRegions() {
-		this.onAll('setRegion', 'landRegion');
-		//this.onAll('setRegion','seaRegion');
+	findTileCoord(y, x) {
+		return this.map[-y + this.centre.y][x + this.centre.x];
 	}
 	mapMode(mode) {
 		for (var i = 0; i < this.height * this.width; i++) {
