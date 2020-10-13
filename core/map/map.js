@@ -1,7 +1,5 @@
 //--------imports------------
 
-const canvasEl = document.getElementById('canvas');
-const overlayEl = document.getElementById('overlay');
 canvasEl.style.width = `${boxSize * mapWidth}px`;
 canvasEl.style.height = `${boxSize * mapHeight}px`;
 canvasEl.width = `${boxSize * mapWidth}`;
@@ -93,9 +91,7 @@ class Map {
 	}
 	addToRegion(regionType, regionNumber) {
 		console.log(this[regionType][regionNumber]);
-		let adderTile = this[regionType][regionNumber][
-			Math.floor(Math.random() * this[regionType][regionNumber].length)
-		];
+		let adderTile = this[regionType][regionNumber][Math.floor(Math.random() * this[regionType][regionNumber].length)];
 		return adderTile
 			.aroundTiles()
 			[Math.floor(Math.random() * adderTile.aroundTiles.length)].joinRegion(regionType, regionNumber);
@@ -198,9 +194,7 @@ class Map {
 			let offset = this.randomRegionColors;
 			for (var i = 0; i < 6; i++) {
 				color +=
-					possibles[
-						(tile.landRegion + offset * i + ((tile.landRegion * offset) % 11) * i) % possibles.length
-					]; //hashing?
+					possibles[(tile.landRegion + offset * i + ((tile.landRegion * offset) % 11) * i) % possibles.length]; //hashing?
 			}
 			if (tile.landRegion == 0) {
 				return 'rgba(0,0,0,0)';
@@ -210,8 +204,7 @@ class Map {
 			if (tile.seaRegion == 0) {
 				return 'rgba(0,0,0,0)';
 			}
-			return `hsla(${tile.seaRegion * 49},${(tile.seaRegion * 7) % 30 + 60}%,${(tile.seaRegion * 17) % 30 +
-				35}%,1)`;
+			return `hsla(${tile.seaRegion * 49},${(tile.seaRegion * 7) % 30 + 60}%,${(tile.seaRegion * 17) % 30 + 35}%,1)`;
 		} else if (mode == 'climate') {
 			if (tile.climate < 0) {
 				return `rgba(0,0,150,${tile.climate / minClimate})`;

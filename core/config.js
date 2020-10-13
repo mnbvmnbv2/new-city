@@ -8,19 +8,12 @@ const regionJoinMinimum = 0.44;
 
 //---------MAPSIZE---------------
 
-let boxSize = 20;
-let mapWidth = 85;
-let mapHeight = 37;
+const canvasEl = document.getElementById('canvas');
+const overlayEl = document.getElementById('overlay');
 
-if (screen.width >= 1850) {
-	boxSize = 20;
-	mapWidth = 96;
-	mapHeight = 43;
-} else {
-	boxSize = 20;
-	mapWidth = 85;
-	mapHeight = 37;
-}
+let boxSize = 20;
+let mapWidth = Math.floor(canvasEl.scrollWidth / boxSize);
+let mapHeight = Math.floor(canvasEl.scrollHeight / boxSize);
 
 //--------------MAPMAKER------------------------
 
